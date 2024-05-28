@@ -1,8 +1,17 @@
-*.js
-!jest.config.js
-*.d.ts
+# MacOS
+.DS_Store
+
+# dir
+.vscode
+dist
 node_modules
 
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# Extendts
+*.zip
+
+# Specied file
+*/api.html
