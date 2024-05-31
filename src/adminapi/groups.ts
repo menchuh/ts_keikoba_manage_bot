@@ -2,21 +2,23 @@ import {
     DynamoDBClient,
     PutItemCommand,
     PutItemCommandInput,
-    QueryCommand,
-    QueryCommandInput,
     UpdateItemCommand,
     UpdateItemInput,
 } from '@aws-sdk/client-dynamodb'
-import { getRandomString } from './common'
+import { getRandomString } from './utils'
 import { CreateGroupResponse } from './type'
 import { TABLE_CONSTANT } from '../common/dynamodb'
 import { EntityType } from '../common/utils'
-import { plainToClass } from 'class-transformer'
-import { Group } from '../common/users_groups'
+import { marshall } from '@aws-sdk/util-dynamodb'
 
 // AWSリソース
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })
 
+/**
+ * グループを作成する関数
+ * @param name グループ名
+ * @returns CreateGroupResponse
+ */
 export const createGroupOne = async (
     name: string
 ): Promise<CreateGroupResponse> => {
@@ -26,23 +28,13 @@ export const createGroupOne = async (
     // 登録
     const putItemRequest: PutItemCommandInput = {
         TableName: TABLE_CONSTANT.users_groups_table,
-        Item: {
-            user_id: {
-                S: groupId,
-            },
-            group_id: {
-                S: groupId,
-            },
-            group_name: {
-                S: name,
-            },
-            area: {
-                S: '中央区',
-            },
-            type: {
-                S: EntityType.group,
-            },
-        },
+        Item: marshall({
+            user_id: groupId,
+            group_id: groupId,
+            group_name: name,
+            area: '中央区',
+            type: EntityType.group,
+        }),
     }
     const command = new PutItemCommand(putItemRequest)
     await client.send(command)
@@ -54,62 +46,27 @@ export const createGroupOne = async (
     }
 }
 
-export const listGroups = async (): Promise<Group[]> => {
-    const queryItemRequest: QueryCommandInput = {
-        TableName: TABLE_CONSTANT.users_groups_table,
-        IndexName: TABLE_CONSTANT.index_name,
-        KeyConditionExpression: '#t = :g',
-        ExpressionAttributeNames: {
-            '#t': 'type',
-        },
-        ExpressionAttributeValues: {
-            ':g': {
-                'S': EntityType.group,
-            },
-        },
-    }
-    const command = new QueryCommand(queryItemRequest)
-    const res = await client.send(command)
-
-    if (res.Items) {
-        return res.Items.map((item) => {
-            return plainToClass(Group, {
-                group_id: item.group_id,
-                user_id: item.user_id,
-                group_name: item.group_name,
-                area: item.area,
-                type: item.type,
-            })
-        })
-    } else {
-        return []
-    }
-}
-
-export const updateGroupOne = async (groupId: string, name: string) => {
+/**
+ * グループの情報を更新する関数
+ * @param groupId グループID
+ * @param groupName グループ名
+ */
+export const updateGroupOne = async (groupId: string, groupName: string) => {
     const updateItemRequest: UpdateItemInput = {
         TableName: TABLE_CONSTANT.users_groups_table,
-        Key: {
-            user_id: {
-                S: groupId,
-            },
-            group_id: {
-                S: groupId,
-            },
-        },
+        Key: marshall({
+            group_id: groupId,
+            user_id: groupId,
+        }),
         UpdateExpression: 'SET group_name = :n',
         ConditionExpression: '#t = :g',
         ExpressionAttributeNames: {
             '#t': 'type',
         },
-        ExpressionAttributeValues: {
-            g: {
-                S: groupId,
-            },
-            n: {
-                S: name,
-            },
-        },
+        ExpressionAttributeValues: marshall({
+            ':g': groupId,
+            ':n': groupName,
+        }),
     }
 
     const command = new UpdateItemCommand(updateItemRequest)

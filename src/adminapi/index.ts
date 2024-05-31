@@ -1,11 +1,23 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { PracticeRequest } from '../common/type'
-import { createGroupOne, listGroups, updateGroupOne } from './groups'
-import { getGroupByID, isSamePracticeItemExists } from '../common/dynamodb'
-import { getErrorBody, getHeaders } from '../common/utils'
-import { CreateGroupRequest } from './type'
+import { createGroupOne, updateGroupOne } from './groups'
+import {
+    createPractice,
+    getGroupByID,
+    isSamePracticeItemExists,
+    listGroups,
+} from '../common/dynamodb'
+import { getErrorBody, getHeaders, readCommunityCenters } from '../common/utils'
+import { CreateGroupRequest, CreatePracticeRequest } from './type'
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb'
 import { EventType, logger, writePracticesChangeLog } from '../common/logger'
+import dayjs from 'dayjs'
+
+// 定数
+const DATE_FORMAT_REGEXP = new RegExp('d{4}/d{2}/d{2}')
+const PRACTICE_REQUIRED_KEYS = ['place', 'date', 'start_time', 'end_time']
+const TIME_FORMAT = 'HH:mm'
+const TIME_FORMAT_REGEXP = new RegExp('d{2}:d{2}')
 
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
@@ -76,7 +88,7 @@ export const lambdaHandler = async (
         // POST /groups
         if (resourcePath === '/groups') {
             if (!event.body) {
-                console.info("'body' is empty.")
+                logger.info("'body' is empty.")
                 return {
                     'statusCode': 400,
                     'headers': getHeaders(),
@@ -101,6 +113,180 @@ export const lambdaHandler = async (
                 'statusCode': 200,
                 'headers': getHeaders(),
                 'body': JSON.stringify(createGroupOne(requestBody.name)),
+            }
+        }
+
+        // POST /practices/{id}
+        if (resourcePath === '/groups/{id}') {
+            // 異常系 #1
+            if (!event.body) {
+                return {
+                    'statusCode': 400,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify(
+                        getErrorBody(400, "'body' is empty.")
+                    ),
+                }
+            }
+            // 異常系 #2
+            if (!event.pathParameters || !event.pathParameters?.id) {
+                return {
+                    'statusCode': 400,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify(
+                        getErrorBody(400, "'groupId' is empty.")
+                    ),
+                }
+            }
+
+            const groupId = event.pathParameters.id
+            const requestBody: CreatePracticeRequest = JSON.parse(event.body)
+
+            // 異常系 #3
+            if (
+                !PRACTICE_REQUIRED_KEYS.every((k) =>
+                    Object.keys(requestBody).includes(k)
+                )
+            ) {
+                return {
+                    'statusCode': 400,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify(
+                        getErrorBody(
+                            400,
+                            `${PRACTICE_REQUIRED_KEYS.join(',')} are required.`
+                        )
+                    ),
+                }
+            }
+
+            const group = await getGroupByID(groupId)
+
+            // グループの有無チェック
+            if (!group) {
+                return {
+                    statusCode: 404,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify(
+                        getErrorBody(
+                            404,
+                            `The group that group_id is ${groupId} is not found.`
+                        )
+                    ),
+                }
+            }
+
+            const communityCenters = await readCommunityCenters(group.area)
+
+            // 稽古場の有無チェック
+            if (
+                communityCenters.map((c) => c.name).includes(requestBody.place)
+            ) {
+                return {
+                    statusCode: 400,
+                    headers: getHeaders(),
+                    body: JSON.stringify(
+                        getErrorBody(
+                            400,
+                            `Practice place ${requestBody.place} is wrong.`
+                        )
+                    ),
+                }
+            }
+
+            logger.info('Pass the place validation.')
+
+            // 日付のチェック
+            if (!DATE_FORMAT_REGEXP.test(requestBody.date)) {
+                return {
+                    statusCode: 400,
+                    headers: getHeaders(),
+                    body: JSON.stringify(
+                        getErrorBody(400, `Date value formt must be yyyy/MM/dd`)
+                    ),
+                }
+            }
+
+            logger.info('Pass the date validation.')
+
+            // 時刻のチェック
+            // フォーマットのチェック
+            if (
+                !TIME_FORMAT_REGEXP.test(requestBody.start_time) ||
+                !TIME_FORMAT_REGEXP.test(requestBody.end_time)
+            ) {
+                return {
+                    statusCode: 400,
+                    headers: getHeaders(),
+                    body: JSON.stringify(
+                        getErrorBody(
+                            400,
+                            `Time value formt must be ${TIME_FORMAT}`
+                        )
+                    ),
+                }
+            }
+
+            // 開始時刻 < 終了時刻のチェック
+            if (
+                !dayjs(requestBody.start_time).isBefore(
+                    dayjs(requestBody.end_time)
+                )
+            ) {
+                return {
+                    statusCode: 400,
+                    headers: getHeaders(),
+                    body: JSON.stringify(
+                        getErrorBody(
+                            400,
+                            'End time must be after the start time.'
+                        )
+                    ),
+                }
+            }
+
+            logger.info('Pass the time validation.')
+
+            // 同じ稽古データがあるかどうかチェック
+            const dateStartPlace = `${requestBody.date}#${requestBody.start_time}#${requestBody.place}`
+            if (await isSamePracticeItemExists(groupId, dateStartPlace)) {
+                return {
+                    'statusCode': 400,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify(
+                        getErrorBody(
+                            400,
+                            'Only one appointment can be created in the same group, at the same place, on the same date, and with the same start time.'
+                        )
+                    ),
+                }
+            }
+
+            logger.info('Create practice')
+
+            // 稽古の追加
+            await createPractice(
+                groupId,
+                group.group_name,
+                requestBody.date,
+                requestBody.start_time,
+                requestBody.end_time,
+                requestBody.place
+            )
+
+            // ログの書き込み
+            await writePracticesChangeLog(groupId, EventType.add, requestBody)
+
+            return {
+                statusCode: 200,
+                headers: getHeaders(),
+                body: JSON.stringify({
+                    'group_id': groupId,
+                    'group_name': group.group_name,
+                    'place': requestBody.place,
+                    'date': requestBody.date,
+                    'time': `${requestBody.start_time}~${requestBody.end_time}`,
+                }),
             }
         }
     }
@@ -204,9 +390,10 @@ export const lambdaHandler = async (
             const requestBody: PracticeRequest = JSON.parse(event.body)
 
             // 異常系 #3
-            const requiredKeys = ['place', 'date', 'start_time', 'end_time']
             if (
-                !requiredKeys.every((k) => Object.keys(requestBody).includes(k))
+                !PRACTICE_REQUIRED_KEYS.every((k) =>
+                    Object.keys(requestBody).includes(k)
+                )
             ) {
                 return {
                     'statusCode': 400,
@@ -214,7 +401,7 @@ export const lambdaHandler = async (
                     'body': JSON.stringify(
                         getErrorBody(
                             400,
-                            `${requiredKeys.join(',')} are required.`
+                            `${PRACTICE_REQUIRED_KEYS.join(',')} are required.`
                         )
                     ),
                 }
@@ -269,11 +456,12 @@ export const lambdaHandler = async (
         }
     }
 
+    const errorMessage = `${httpMethod} method is not supported.`
+    logger.error(errorMessage)
+
     return {
         statusCode: 400,
         headers: getHeaders(),
-        body: JSON.stringify(
-            getErrorBody(400, `${httpMethod} method is not supported.`)
-        ),
+        body: JSON.stringify(getErrorBody(400, errorMessage)),
     }
 }

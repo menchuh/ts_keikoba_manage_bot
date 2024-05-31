@@ -16,9 +16,12 @@ export type PracticeRequest = {
     end_time: string
 }
 
-export type Practice = {
-    place: string
-    date: string
-    start_time: string
-    end_time: string
+export type CommunityCenterConfig = {
+    [key: string]: CommunityCenter[]
+}
+
+export type CommunityCenter = {
+    name: string
+    address: string
+    image: string
 }
