@@ -1,5 +1,6 @@
 import { IsArray, IsEnum, IsObject, IsString } from 'class-validator'
 import { EntityType } from './utils'
+import { UserAddPracticePhase, UserMode } from '../manager_bot/user_sessions'
 
 export class User {
     @IsString()
@@ -12,7 +13,7 @@ export class User {
     groups: string[]
 
     @IsObject()
-    session: {}
+    session: UserSession | null
 
     @IsEnum(EntityType)
     type: EntityType
@@ -44,4 +45,15 @@ export class Relation {
 
     @IsEnum(EntityType)
     type: EntityType
+}
+
+export class UserSession {
+    @IsEnum(UserMode)
+    mode?: UserMode
+
+    @IsEnum(UserAddPracticePhase)
+    phase?: UserAddPracticePhase
+
+    @IsObject()
+    data?: {}
 }
