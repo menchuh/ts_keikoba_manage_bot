@@ -7,11 +7,12 @@ import {
     isSamePracticeItemExists,
     listGroups,
 } from '../common/dynamodb'
-import { getErrorBody, getHeaders, readCommunityCenters } from '../common/utils'
+import { getErrorBody, getHeaders } from '../common/utils'
 import { CreateGroupRequest, CreatePracticeRequest } from './type'
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb'
 import { EventType, logger, writePracticesChangeLog } from '../common/logger'
 import dayjs from 'dayjs'
+import { communityCenters } from '../common/community_centers'
 
 // 定数
 const DATE_FORMAT_REGEXP = new RegExp('d{4}/d{2}/d{2}')
@@ -176,11 +177,13 @@ export const lambdaHandler = async (
                 }
             }
 
-            const communityCenters = await readCommunityCenters(group.area)
+            const communityCentersOfTheArea = communityCenters[group.area]
 
             // 稽古場の有無チェック
             if (
-                communityCenters.map((c) => c.name).includes(requestBody.place)
+                communityCentersOfTheArea
+                    .map((c) => c.name)
+                    .includes(requestBody.place)
             ) {
                 return {
                     statusCode: 400,

@@ -3,10 +3,10 @@ import {
     PutObjectCommand,
     S3Client,
 } from '@aws-sdk/client-s3'
-import { cdate } from 'cdate'
 import { getSsmParameter } from './utils'
-import { Practice } from './type'
 import pino from 'pino'
+import { Practice } from './practices'
+import dayjs from 'dayjs'
 
 // 定数
 const ADMIN_USER_NAME = '管理者'
@@ -57,7 +57,7 @@ export const writePracticesChangeLog = async (
     mode: EventType,
     data: Practice
 ) => {
-    const timeNow = cdate().utcOffset(JST_TIMEDIFF).format(LOG_TIMESTAMP_FORMAT)
+    const timeNow = dayjs().add(9, 'hour').format(LOG_TIMESTAMP_FORMAT)
     // ログ文字列の生成
     const logText = `${timeNow}\t${ADMIN_USER_NAME}\t${data['date']} ${data['start_time']}〜${data['end_time']}@${data['place']}の稽古をAdmin APIで${mode}しました`
     // 引数の設定

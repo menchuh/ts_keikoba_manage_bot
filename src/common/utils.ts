@@ -1,12 +1,5 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
-import {
-    CommunityCenterConfig,
-    CommunityCenter,
-    ErrorObject,
-    HeaderObject,
-} from './type'
-import axios from 'axios'
-import { logger } from './logger'
+import { ErrorObject, HeaderObject } from './type'
 
 const ssmClient = new SSMClient()
 
@@ -16,7 +9,6 @@ export enum EntityType {
     group = 'group',
     relation = 'relation',
 }
-const PLACE_JSON_URLPATH = 'configs/community_centers.json'
 
 /**
  * Lambda Proxy統合で必要なヘッダーを返す関数
@@ -73,20 +65,4 @@ export const getSsmParameter = async (key: string): Promise<string> => {
     }
 
     return response.Parameter.Value
-}
-
-export const readCommunityCenters = async (
-    area: string
-): Promise<CommunityCenter[]> => {
-    const domain = getSsmParameter('KeikobaLineBot-CLOUD_FRONT_DOMAIN')
-    const url = `${domain}/${PLACE_JSON_URLPATH}`
-    const response: string = await axios.get(url)
-    const communityCenters: CommunityCenterConfig = JSON.parse(response)
-
-    if (communityCenters[area]) {
-        return communityCenters[area]
-    } else {
-        logger.error(`Key ${area} is not in the community center file.`)
-        throw new Error('KeyError')
-    }
 }
