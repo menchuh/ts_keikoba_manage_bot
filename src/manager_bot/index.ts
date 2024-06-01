@@ -8,6 +8,12 @@ import {
 import { getErrorBody, getHeaders, getSsmParameter } from '../common/utils'
 import { logger } from '../common/logger'
 import { deleteUserByID, getUserByID, putInitialUserItem } from './dynamodb'
+import { UserMode } from './user_sessions'
+import { getGroupByID, putRelationItem } from '../common/dynamodb'
+import {
+    updateUserBelongingGroups,
+    updateUserSession,
+} from '../notification/dynamodb'
 
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
@@ -63,7 +69,7 @@ export const lambdaHandler = async (
     //============================================
     // 新規フォロー
     //============================================
-    if (lineEvent.type === 'follow') {
+    if (!user && lineEvent.type === 'follow') {
         logger.info('Follow Event')
         // ユーザーオブジェクト追加
         await putInitialUserItem(userId)
@@ -89,6 +95,79 @@ export const lambdaHandler = async (
     //============================================
     // テキストメッセージ
     //============================================
+    if (lineEvent.type === 'message' && lineEvent.message.type === 'text') {
+        logger.info('Text Message Event')
+        // 座組に参加
+        if (user?.session && user.session.mode === UserMode.JoinGroup) {
+            let text = ''
+
+            const groupId = lineEvent.message.text
+            const group = await getGroupByID(groupId)
+
+            if (!group) {
+                text += '指定された座組は存在しません'
+            } else if (user.groups.includes(groupId)) {
+                text += 'その座組にはすでに参加しています'
+            } else {
+                // 座組の設定
+                await updateUserBelongingGroups(
+                    userId,
+                    [
+                        {
+                            group_id: groupId,
+                            group_name: group.group_name,
+                            area: group.area,
+                        },
+                    ],
+                    UserMode.JoinGroup
+                )
+                await putRelationItem(userId, groupId)
+                // セッション情報のクリア
+                await updateUserSession({}, userId)
+
+                text = `「${group.group_name}」に参加しました`
+            }
+
+            // メッセージ送信
+            await client.replyMessage({
+                replyToken: lineEvent.replyToken,
+                messages: [
+                    {
+                        type: 'text',
+                        text: text,
+                    },
+                ],
+            })
+            // 座組に参加していないユーザからのメッセージ
+        } else if (user?.groups.length === 0) {
+            // メッセージ送信
+            const text =
+                '座組に未参加です。\nメニューの「座組に参加」ボタンをタップして、座組に参加してください'
+            await client.replyMessage({
+                replyToken: lineEvent.replyToken,
+                messages: [
+                    {
+                        type: 'text',
+                        text: text,
+                    },
+                ],
+            })
+            // 座組ID入力以外のテキストメッセージ
+        } else {
+            // メッセージ送信
+            const text =
+                'ごめんなさい！\nこのアカウントではメッセージにお答えできません >_<'
+            await client.replyMessage({
+                replyToken: lineEvent.replyToken,
+                messages: [
+                    {
+                        type: 'text',
+                        text: text,
+                    },
+                ],
+            })
+        }
+    }
 
     //============================================
     // ボタン押下

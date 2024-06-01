@@ -24,7 +24,7 @@ export class Group {
     group_id: string
 
     @IsString()
-    user_id: string
+    user_id?: string
 
     @IsString()
     group_name: string
@@ -33,7 +33,7 @@ export class Group {
     area: string
 
     @IsEnum(EntityType)
-    type: EntityType
+    type?: EntityType
 }
 
 export class Relation {
