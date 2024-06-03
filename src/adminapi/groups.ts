@@ -8,8 +8,8 @@ import {
 import { getRandomString } from './utils'
 import { CreateGroupResponse } from './type'
 import { TABLE_CONSTANT } from '../common/dynamodb'
-import { EntityType } from '../common/utils'
 import { marshall } from '@aws-sdk/util-dynamodb'
+import { EntityType } from '../common/users_groups'
 
 // AWSリソース
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })

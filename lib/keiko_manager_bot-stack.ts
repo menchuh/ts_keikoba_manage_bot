@@ -55,6 +55,10 @@ export class KeikoManagerBotStack extends Stack {
         const restApiMessage = restApiMessageApi.root.addResource('messages')
 
         //============================================
+        // IAM Role
+        //============================================
+
+        //============================================
         // Lambda Functions
         //============================================
         // Function #1

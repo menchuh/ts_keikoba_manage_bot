@@ -3,13 +3,6 @@ import { ErrorObject, HeaderObject } from './type'
 
 const ssmClient = new SSMClient()
 
-// 定数
-export enum EntityType {
-    user = 'user',
-    group = 'group',
-    relation = 'relation',
-}
-
 /**
  * Lambda Proxy統合で必要なヘッダーを返す関数
  */

@@ -59,7 +59,7 @@ export const writePracticesChangeLog = async (
 ) => {
     const timeNow = dayjs().add(9, 'hour').format(LOG_TIMESTAMP_FORMAT)
     // ログ文字列の生成
-    const logText = `${timeNow}\t${ADMIN_USER_NAME}\t${data['date']} ${data['start_time']}〜${data['end_time']}@${data['place']}の稽古をAdmin APIで${mode}しました`
+    const logText = `${timeNow}\t${ADMIN_USER_NAME}\t${data.date} ${data.start_time}〜${data.end_time}@${data.place}の稽古をAdmin APIで${mode}しました`
     // 引数の設定
     const bucketName = await getSsmParameter('KeikobaLineBotAdmin-BUCKET_NAME')
     const fileKey = `${groupId}.log`

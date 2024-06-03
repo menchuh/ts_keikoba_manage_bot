@@ -1,6 +1,17 @@
 import { IsArray, IsEnum, IsObject, IsString } from 'class-validator'
-import { EntityType } from './utils'
-import { UserAddPracticePhase, UserMode } from '../manager_bot/user_sessions'
+import {
+    UserAddPracticePhase,
+    UserMode,
+    UserNotifyPracticesWithdrawGroupPhase,
+} from '../manager_bot/user_sessions'
+
+// 定数
+export enum EntityType {
+    user = 'user',
+    group = 'group',
+    relation = 'relation',
+}
+export const JOINABLE_GROUP_COUNT = 4
 
 export class User {
     @IsString()
@@ -10,7 +21,7 @@ export class User {
     user_id: string
 
     @IsArray()
-    groups: string[]
+    groups: Group[]
 
     @IsObject()
     session: UserSession | null
@@ -51,8 +62,8 @@ export class UserSession {
     @IsEnum(UserMode)
     mode?: UserMode
 
-    @IsEnum(UserAddPracticePhase)
-    phase?: UserAddPracticePhase
+    @IsEnum(UserNotifyPracticesWithdrawGroupPhase)
+    phase?: UserNotifyPracticesWithdrawGroupPhase | UserAddPracticePhase
 
     @IsObject()
     data?: {}

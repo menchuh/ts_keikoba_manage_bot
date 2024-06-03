@@ -11,8 +11,7 @@ import {
     QueryInput,
 } from '@aws-sdk/client-dynamodb'
 import { plainToClass } from 'class-transformer'
-import { Group } from './users_groups'
-import { EntityType } from './utils'
+import { EntityType, Group } from './users_groups'
 import { Practice } from './practices'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 import dayjs from 'dayjs'

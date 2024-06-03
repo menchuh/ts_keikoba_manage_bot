@@ -13,6 +13,8 @@ import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb'
 import { EventType, logger, writePracticesChangeLog } from '../common/logger'
 import dayjs from 'dayjs'
 import { communityCenters } from '../common/community_centers'
+import { plainToClass } from 'class-transformer'
+import { Practice } from '../common/practices'
 
 // 定数
 const DATE_FORMAT_REGEXP = new RegExp('d{4}/d{2}/d{2}')
@@ -278,7 +280,18 @@ export const lambdaHandler = async (
             )
 
             // ログの書き込み
-            await writePracticesChangeLog(groupId, EventType.add, requestBody)
+            await writePracticesChangeLog(
+                groupId,
+                EventType.add,
+                plainToClass(Practice, {
+                    group_id: groupId,
+                    group_name: group.group_name,
+                    date: requestBody.date,
+                    start_time: requestBody.start_time,
+                    end_time: requestBody.end_time,
+                    place: requestBody.place,
+                })
+            )
 
             return {
                 statusCode: 200,
@@ -419,7 +432,13 @@ export const lambdaHandler = async (
                     await writePracticesChangeLog(
                         groupId,
                         EventType.Delete,
-                        requestBody
+                        plainToClass(Practice, {
+                            group_id: groupId,
+                            date: requestBody.date,
+                            start_time: requestBody.start_time,
+                            end_time: requestBody.end_time,
+                            place: requestBody.place,
+                        })
                     )
                     return {
                         statusCode: 204,
