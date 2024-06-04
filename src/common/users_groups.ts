@@ -66,5 +66,8 @@ export class UserSession {
     phase?: UserNotifyPracticesWithdrawGroupPhase | UserAddPracticePhase
 
     @IsObject()
-    data?: {}
+    data?: {
+        group_id?: string
+        group_name?: string
+    }
 }

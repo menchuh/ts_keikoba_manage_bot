@@ -8,6 +8,7 @@ import {
     aws_lambda_nodejs,
 } from 'aws-cdk-lib'
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda'
+import { RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Construct } from 'constructs'
 
 export class KeikoManagerBotStack extends Stack {
@@ -55,10 +56,6 @@ export class KeikoManagerBotStack extends Stack {
         const restApiMessage = restApiMessageApi.root.addResource('messages')
 
         //============================================
-        // IAM Role
-        //============================================
-
-        //============================================
         // Lambda Functions
         //============================================
         // Function #1
@@ -71,7 +68,7 @@ export class KeikoManagerBotStack extends Stack {
                 functionName: adminApiFuncName,
                 entry: 'src/adminapi/index.ts',
                 timeout: Duration.seconds(10),
-                logRetention: 30,
+                logRetention: RetentionDays.ONE_MONTH,
                 architecture: Architecture.ARM_64,
                 handler: 'lambdaHandler',
             }
@@ -87,7 +84,7 @@ export class KeikoManagerBotStack extends Stack {
                 functionName: lineManagerBotFuncName,
                 entry: 'src/manager_bot/index.ts',
                 timeout: Duration.seconds(10),
-                logRetention: 30,
+                logRetention: RetentionDays.ONE_MONTH,
                 architecture: Architecture.ARM_64,
                 handler: 'lambdaHandler',
             }
@@ -95,7 +92,7 @@ export class KeikoManagerBotStack extends Stack {
 
         // Function #3
         const lineNotificationFuncName = 'KeikobaManagerBot_LineNotification'
-        const lineNotificationFunResource =
+        const lineNotificationFuncResource =
             new aws_lambda_nodejs.NodejsFunction(
                 this,
                 lineNotificationFuncName,
@@ -104,7 +101,7 @@ export class KeikoManagerBotStack extends Stack {
                     functionName: lineNotificationFuncName,
                     entry: 'src/notification/index.ts',
                     timeout: Duration.seconds(10),
-                    logRetention: 30,
+                    logRetention: RetentionDays.ONE_MONTH,
                     architecture: Architecture.ARM_64,
                     handler: 'lambdaHandler',
                 }
@@ -127,7 +124,7 @@ export class KeikoManagerBotStack extends Stack {
             }),
             targets: [
                 new aws_events_targets.LambdaFunction(
-                    lineNotificationFunResource
+                    lineNotificationFuncResource
                 ),
             ],
         })

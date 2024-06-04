@@ -14,8 +14,10 @@ import {
     UserNotifyPracticesWithdrawGroupPhase,
 } from './user_sessions'
 import {
+    deleteRelationItem,
     getGroupByID,
     getPracticesByGroupID,
+    getUsersByGroupID,
     putRelationItem,
 } from '../common/dynamodb'
 import {
@@ -32,9 +34,13 @@ import {
     createNotifyPracticesAskGroupButtonMessage,
     createWithdrawGroupButtonMessage,
     getPushMessageCount,
+    ConfirmTemplateAction,
+    createWithdrawGroupConfirmMessage,
 } from './messages'
 import { communityCenters } from '../common/community_centers'
 import { CommunityCenter } from '../common/type'
+import { group } from 'console'
+import { getMessageDateFormat } from '../notification/utils'
 
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
@@ -457,6 +463,226 @@ export const lambdaHandler = async (
             // メッセージボタン押下
             //============================================
         } else {
+            // 稽古予定の通知
+            if (user?.session?.mode === UserMode.NotifyPractices) {
+                logger.info(UserMode.NotifyPractices)
+                logger.info(user.session.phase)
+                if (
+                    user.session.phase ===
+                    UserNotifyPracticesWithdrawGroupPhase.AskGroup
+                ) {
+                    // 通知先の座組の指定
+                    const groupId = lineEvent.postback.data.replace(
+                        'group_id=',
+                        ''
+                    )
+                    const group = user.groups.find(
+                        (g) => g.group_id === groupId
+                    )
+                    logger.info(group)
+                    // セッションの更新
+                    const session: UserSession = {
+                        mode: UserMode.NotifyPractices,
+                        phase: UserNotifyPracticesWithdrawGroupPhase.Confirm,
+                        data: {
+                            group_id: groupId,
+                            group_name: group?.group_name,
+                        },
+                    }
+                    await updateUserSession(session, userId)
+                    // メッセージ送信
+                    await client.replyMessage({
+                        replyToken: lineEvent.replyToken,
+                        messages: [createNotifyPracticesConfirmMessage(group!)],
+                    })
+                } else if (
+                    user.session.phase ===
+                    UserNotifyPracticesWithdrawGroupPhase.Confirm
+                ) {
+                    // 通知を送るかどうかの確認
+                    const action = lineEvent.postback.data.replace(
+                        'action=',
+                        ''
+                    )
+                    if (action === ConfirmTemplateAction.approve) {
+                        // 通知を送る
+                        // 稽古予定を取得
+                        const groupId = user.session.data!.group_id!
+                        const practices = await getPracticesByGroupID(groupId)
+                        // 送信対象の取得
+                        const targets = await getUsersByGroupID(groupId)
+                        // メッセージ生成
+                        let text = ''
+                        const userName = await client.getProfile(userId)
+                        const groupName = user.session.data!.group_name!
+                        if (practices.length === 0) {
+                            // 予定されている稽古がない場合
+                            text = `${userName}さんからのお知らせです。\n「${groupName}」で予定されている稽古はありません`
+                        } else {
+                            // 予定されている稽古がある場合
+                            text = `${userName}さんからのお知らせです。\n「${groupName}」予定されている稽古は以下の通りです。\n\n`
+                            practices.forEach((p) => {
+                                text += `${getMessageDateFormat(p.date)} ${p.start_time}〜${p.end_time}@${p.place}`
+                            })
+                        }
+
+                        // メッセージ送信
+                        targets.forEach(async (t) => {
+                            await client.pushMessage({
+                                to: t,
+                                messages: [{ type: 'text', text: text }],
+                            })
+                        })
+                    } else if (action === ConfirmTemplateAction.cancel) {
+                        // 通知をキャンセルする
+                        // セッション情報のクリア
+                        await updateUserSession({}, userId)
+                        // メッセージ送信
+                        const text = 'かしこまりました。通知は行いません'
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    } else {
+                        // 予期しないアクションの場合
+                        // エラーログ出力
+                        logger.error(
+                            `An error has occurred on ${UserMode.NotifyPractices} mode.`
+                        )
+                        logger.error(
+                            `An error has occurred on {UserNotifyPracticesWithdrawGroupPhase.Confirm} phase.`
+                        )
+                        logger.error(`Unexpected action has sent: ${action}`)
+                        // セッション情報のクリア
+                        await updateUserSession({}, userId)
+                        // メッセージ送信
+                        const text =
+                            'エラーが発生しました。最初からやり直してください'
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    }
+                }
+            }
+
+            // 稽古予定の追加
+            if (user?.session?.mode === UserMode.AddPractice) {
+            }
+
+            // 座組を抜ける
+            if (user?.session?.mode === UserMode.WithdrawGroup) {
+                logger.info(UserMode.WithdrawGroup)
+                logger.info(user.session.phase)
+                if (
+                    user.session.phase ===
+                    UserNotifyPracticesWithdrawGroupPhase.AskGroup
+                ) {
+                    // 本当に抜けるかどうかの確認
+                    const groupId = lineEvent.postback.data.replace(
+                        'group_id=',
+                        ''
+                    )
+                    const group = user.groups.find(
+                        (g) => g.group_id === groupId
+                    )
+                    // セッションの更新
+                    const session: UserSession = {
+                        mode: UserMode.WithdrawGroup,
+                        phase: UserNotifyPracticesWithdrawGroupPhase.Confirm,
+                        data: {
+                            group_id: groupId,
+                            group_name: group?.group_name,
+                        },
+                    }
+                    await updateUserSession(session, userId)
+                    // メッセージ送信
+                    await client.replyMessage({
+                        replyToken: lineEvent.replyToken,
+                        messages: [createWithdrawGroupConfirmMessage(group!)],
+                    })
+                } else if (
+                    user.session.phase ===
+                    UserNotifyPracticesWithdrawGroupPhase.Confirm
+                ) {
+                    // 座組を抜ける処理
+                    const action = lineEvent.postback.data.replace(
+                        'action=',
+                        ''
+                    )
+                    if (action === ConfirmTemplateAction.approve) {
+                        // 座組を抜ける場合
+                        const groupToWithdraw = user.session.data
+                        const groupId = groupToWithdraw?.group_id
+                        // テーブルデータ更新
+                        user.groups = user.groups.filter(
+                            (g) => g.group_id !== groupId
+                        )
+                        await updateUserBelongingGroups(
+                            userId,
+                            user.groups,
+                            UserMode.WithdrawGroup
+                        )
+                        await deleteRelationItem(userId, groupId!)
+                        // セッション情報のクリア
+                        await updateUserSession({}, userId)
+                        // メッセージ送信
+                        const text = `「${groupToWithdraw?.group_name}」を抜けました。お疲れさまでした`
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    } else if (action === ConfirmTemplateAction.cancel) {
+                        // 座組を抜けない
+                        // セッション情報のクリア
+                        await updateUserSession({}, userId)
+                        // メッセージ送信
+                        const text =
+                            '座組にはそのまま参加されるんですね。\nかしこまりました'
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    } else {
+                        // 予期しないアクションの場合
+                        // エラーログ出力
+                        logger.error(
+                            `An error has occurred on ${UserMode.WithdrawGroup} mode.`
+                        )
+                        logger.error(
+                            `An error has occurred on ${UserNotifyPracticesWithdrawGroupPhase.Confirm} phase.`
+                        )
+                        logger.error(`Unexpected action has sent: ${action}`)
+                        // セッション情報のクリア
+                        await updateUserSession({}, userId)
+                        // メッセージ送信
+                        const text =
+                            'エラーが発生しました。最初からやり直してください'
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    }
+                } else {
+                    // セッションに予期しないフェーズが格納されていた場合
+                    // エラーログ出力
+                    logger.error(
+                        `An error has occurred on ${UserMode.WithdrawGroup} mode.`
+                    )
+                    logger.error(
+                        `Unexpected phase in session: ${user.session.phase}`
+                    )
+                    // セッション情報のクリア
+                    await updateUserSession({}, userId)
+                    // メッセージ送信
+                    const text =
+                        'エラーが発生しました。最初からやり直してください'
+                    await client.replyMessage({
+                        replyToken: lineEvent.replyToken,
+                        messages: [{ type: 'text', text: text }],
+                    })
+                }
+            }
         }
     }
 

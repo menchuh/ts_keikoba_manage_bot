@@ -10,7 +10,7 @@ import { CommunityCenter } from '../common/type'
 
 // 定数
 export const CAROUSEL_COLUMN_MAX = 10
-enum ConfirmTemplateAction {
+export enum ConfirmTemplateAction {
     approve = 'approve',
     cancel = 'cancel',
 }
@@ -189,7 +189,7 @@ export const createWithdrawGroupButtonMessage = (
  * @param groups グループ
  * @returns
  */
-export const createWithdrawGroupCongirmMessage = (
+export const createWithdrawGroupConfirmMessage = (
     group: Group
 ): TemplateMessage => {
     return {
