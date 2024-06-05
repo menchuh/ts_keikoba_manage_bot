@@ -5,15 +5,21 @@ import {
     aws_apigateway,
     aws_events,
     aws_events_targets,
-    aws_lambda_nodejs,
+    aws_ecr,
+    aws_lambda,
 } from 'aws-cdk-lib'
-import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda'
 import { RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Construct } from 'constructs'
+import * as imagedeploy from 'cdk-docker-image-deployment'
+import path from 'path'
+import { ulid } from 'ulid'
 
 export class KeikoManagerBotStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props)
+
+        // Dockerイメージに付するタグ
+        const dockerImageTag = ulid()
 
         //============================================
         // API Gateway
@@ -56,56 +62,84 @@ export class KeikoManagerBotStack extends Stack {
         const restApiMessage = restApiMessageApi.root.addResource('messages')
 
         //============================================
+        // Elastic Container Registry
+        //============================================
+        // Create ECR Repository
+        const repositoryPrefix = 'KeikobaManageBot'
+        const ecrRepository = new aws_ecr.Repository(
+            this,
+            `${repositoryPrefix}-ts`,
+            {
+                imageScanOnPush: true,
+                repositoryName: `${repositoryPrefix}-ts-repo`,
+                lifecycleRules: [
+                    {
+                        description: 'Repository for Keikoba Manage bot image.',
+                        maxImageCount: 5, // 5世代まで保持
+                    },
+                ],
+            }
+        )
+
+        // Create and push Docker image
+        const imageDeployment = 'KeikobaManageBotDockerImageDeploy'
+        new imagedeploy.DockerImageDeployment(this, imageDeployment, {
+            source: imagedeploy.Source.directory(path.join(__dirname, '..')),
+            destination: imagedeploy.Destination.ecr(ecrRepository, {
+                tag: dockerImageTag,
+            }),
+        })
+
+        //============================================
         // Lambda Functions
         //============================================
         // Function #1
         const adminApiFuncName = 'KeikobaManagerBot_AdminApi'
-        const adminApiFuncResource = new aws_lambda_nodejs.NodejsFunction(
+        const adminApiFuncResource = new aws_lambda.DockerImageFunction(
             this,
             adminApiFuncName,
             {
-                runtime: Runtime.NODEJS_18_X,
+                code: aws_lambda.DockerImageCode.fromEcr(ecrRepository, {
+                    cmd: ['src/adminapi/index.lambdaHandler'],
+                    tagOrDigest: dockerImageTag,
+                }),
                 functionName: adminApiFuncName,
-                entry: 'src/adminapi/index.ts',
-                timeout: Duration.seconds(10),
                 logRetention: RetentionDays.ONE_MONTH,
-                architecture: Architecture.ARM_64,
-                handler: 'lambdaHandler',
+                timeout: Duration.seconds(10),
             }
         )
 
         // Function #2
         const lineManagerBotFuncName = 'KeikobaManagerBot_LineManagerBot'
-        const lineManagerBotFuncResource = new aws_lambda_nodejs.NodejsFunction(
+        const lineManagerBotFuncResource = new aws_lambda.DockerImageFunction(
             this,
             lineManagerBotFuncName,
             {
-                runtime: Runtime.NODEJS_18_X,
+                code: aws_lambda.DockerImageCode.fromEcr(ecrRepository, {
+                    cmd: ['src/manager_bot/index.lambdaHandler'],
+                    tagOrDigest: dockerImageTag,
+                }),
                 functionName: lineManagerBotFuncName,
-                entry: 'src/manager_bot/index.ts',
-                timeout: Duration.seconds(10),
                 logRetention: RetentionDays.ONE_MONTH,
-                architecture: Architecture.ARM_64,
-                handler: 'lambdaHandler',
+                timeout: Duration.seconds(10),
             }
         )
 
         // Function #3
         const lineNotificationFuncName = 'KeikobaManagerBot_LineNotification'
-        const lineNotificationFuncResource =
-            new aws_lambda_nodejs.NodejsFunction(
-                this,
-                lineNotificationFuncName,
-                {
-                    runtime: Runtime.NODEJS_18_X,
-                    functionName: lineNotificationFuncName,
-                    entry: 'src/notification/index.ts',
-                    timeout: Duration.seconds(10),
-                    logRetention: RetentionDays.ONE_MONTH,
-                    architecture: Architecture.ARM_64,
-                    handler: 'lambdaHandler',
-                }
-            )
+        const lineNotificationFuncResource = new aws_lambda.DockerImageFunction(
+            this,
+            lineNotificationFuncName,
+            {
+                code: aws_lambda.DockerImageCode.fromEcr(ecrRepository, {
+                    cmd: ['src/notification/index.lambdaHandler'],
+                    tagOrDigest: dockerImageTag,
+                }),
+                functionName: lineNotificationFuncName,
+                logRetention: RetentionDays.ONE_MONTH,
+                timeout: Duration.seconds(10),
+            }
+        )
 
         //============================================
         // CloudWatch Trigger

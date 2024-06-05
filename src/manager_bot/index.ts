@@ -37,9 +37,11 @@ import {
     ConfirmTemplateAction,
     createWithdrawGroupConfirmMessage,
 } from './messages'
-import { communityCenters } from '../common/community_centers'
+import {
+    communityCenters,
+    getCommunityCenterByAreaAndName,
+} from '../common/community_centers'
 import { CommunityCenter } from '../common/type'
-import { group } from 'console'
 import { getMessageDateFormat } from '../notification/utils'
 
 export const lambdaHandler = async (
@@ -227,6 +229,7 @@ export const lambdaHandler = async (
             // 座組に参加
             if (method === UserMode.JoinGroup) {
                 if (user!.groups.length > JOINABLE_GROUP_COUNT) {
+                    // 参加最大可能座組数を超える場合
                     // メッセージ送信
                     const text = `参加できる座組は${JOINABLE_GROUP_COUNT}組までです。\n「座組を抜ける」ボタンから座組を抜けたのち、もう一度お試しください`
                     await client.replyMessage({
@@ -234,6 +237,7 @@ export const lambdaHandler = async (
                         messages: [{ type: 'text', text: text }],
                     })
                 } else {
+                    // 正常ケース
                     // Sessionの更新
                     const session: UserSession = {
                         mode: UserMode.JoinGroup,
@@ -252,6 +256,7 @@ export const lambdaHandler = async (
             // 稽古予定の確認
             if (method === UserMode.ListPractices) {
                 if (user?.groups.length === 0) {
+                    // 参加している座組がない場合
                     // メッセージ送信
                     const text = '参加している座組がありません'
                     await client.replyMessage({
@@ -259,6 +264,7 @@ export const lambdaHandler = async (
                         messages: [{ type: 'text', text: text }],
                     })
                 } else {
+                    // 座組に参加している場合
                     const groupIds = user?.groups.map((g) => g.group_id)
                     // 稽古予定の取得
                     let practices: Practice[][] = []
@@ -267,16 +273,16 @@ export const lambdaHandler = async (
                     })
                     practices = practices.filter((p) => p.length !== 0)
 
-                    // 予定されている稽古がない場合
                     if (practices.length === 0) {
+                        // 予定されている稽古がない場合
                         // メッセージ送信
                         const text = '予定されている稽古はありません'
                         await client.replyMessage({
                             replyToken: lineEvent.replyToken,
                             messages: [{ type: 'text', text: text }],
                         })
-                        // 予定されている稽古がある場合
                     } else {
+                        // 予定されている稽古がある場合
                         let practices_text = ''
                         practices.forEach((x, i, self) => {
                             practices_text += `【${x[0].group_name}】\n`
@@ -326,6 +332,7 @@ export const lambdaHandler = async (
                         messages: [createNotifyPracticesConfirmMessage(group)],
                     })
                 } else {
+                    // 参加している座組が2つ以上の場合
                     // セッションの更新
                     const session: UserSession = {
                         mode: UserMode.NotifyPractices,
@@ -568,6 +575,78 @@ export const lambdaHandler = async (
 
             // 稽古予定の追加
             if (user?.session?.mode === UserMode.AddPractice) {
+                logger.info(UserMode.AddPractice)
+                logger.info(user.session.phase)
+                if (user.session.phase === UserAddPracticePhase.AskGroup) {
+                    // 座組の指定
+                    const groupId = lineEvent.postback.data.replace(
+                        'group_id=',
+                        ''
+                    )
+                    const group = user.groups.find(
+                        (g) => g.group_id === groupId
+                    )
+                    // セッションの更新
+                    const session: UserSession = {
+                        mode: UserMode.AddPractice,
+                        phase: UserAddPracticePhase.AskPlace,
+                        data: {
+                            group_id: group?.group_id,
+                            group_name: group?.group_name,
+                        },
+                    }
+                    await updateUserSession(session, userId)
+                    // メッセージ送信
+                    const places: CommunityCenter[] =
+                        communityCenters[group!.area]
+                    const carouselMessageCount = getPushMessageCount(
+                        places.length
+                    )
+                    const text =
+                        '稽古予定を追加（1/4）\n稽古場所を指定してください'
+                    await client.replyMessage({
+                        replyToken: lineEvent.replyToken,
+                        messages: [{ type: 'text', text: text }],
+                    })
+                    for (let i = 0; i < carouselMessageCount; i++) {
+                        await client.pushMessage({
+                            to: userId,
+                            messages: [
+                                createAddPracticeAskPlaceMessage(
+                                    places,
+                                    carouselMessageCount * i
+                                ),
+                            ],
+                        })
+                    }
+                } else if (
+                    user.session.phase === UserAddPracticePhase.AskPlace
+                ) {
+                    // 場所の指定
+                    const place = lineEvent.postback.data.replace('place=', '')
+                    // 座組情報を取得
+                    const group = await getGroupByID(
+                        user.session.data?.group_id!
+                    )
+                    // 施設情報を取得
+                    const communityCenter = getCommunityCenterByAreaAndName(
+                        group?.area!,
+                        group?.group_name!
+                    )
+                    if (!communityCenter) {
+                        // 指定された施設が存在しない場合
+                        throw new Error('Missing Place')
+                    }
+                    // セッション更新
+                    const session: UserSession = {
+                        mode: UserMode.AddPractice,
+                        phase: UserAddPracticePhase.AskDate,
+                        data: {
+                            group_id: group?.group_id,
+                            group_name: group?.group_name,
+                        },
+                    }
+                }
             }
 
             // 座組を抜ける

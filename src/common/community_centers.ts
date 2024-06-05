@@ -1,4 +1,4 @@
-import { CommunityCenterConfig } from './type'
+import { CommunityCenter, CommunityCenterConfig } from './type'
 
 export const communityCenters: CommunityCenterConfig = {
     '中央区': [
@@ -93,4 +93,13 @@ export const communityCenters: CommunityCenterConfig = {
             'image': 'images/tokyo-chuoku/sangyo_sangyokaikan.jpeg',
         },
     ],
+}
+
+export const getCommunityCenterByAreaAndName = (
+    area: string,
+    name: string
+): CommunityCenter | undefined => {
+    const communityCentersOfArea = communityCenters[area]
+    const communityCenter = communityCentersOfArea.find((c) => c.name === name)
+    return communityCenter
 }
