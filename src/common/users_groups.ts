@@ -62,12 +62,16 @@ export class UserSession {
     @IsEnum(UserMode)
     mode?: UserMode
 
-    @IsEnum(UserNotifyPracticesWithdrawGroupPhase)
+    @IsEnum(UserNotifyPracticesWithdrawGroupPhase || UserAddPracticePhase)
     phase?: UserNotifyPracticesWithdrawGroupPhase | UserAddPracticePhase
 
     @IsObject()
     data?: {
         group_id?: string
         group_name?: string
+        place?: string
+        date?: string
+        start_time?: string
+        end_time?: string
     }
 }

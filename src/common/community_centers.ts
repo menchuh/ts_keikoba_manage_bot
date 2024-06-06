@@ -95,6 +95,12 @@ export const communityCenters: CommunityCenterConfig = {
     ],
 }
 
+/**
+ * 地域名と施設名から指定された施設情報を返す関数
+ * @param area 地域名（市区町村）
+ * @param name 施設名
+ * @returns
+ */
 export const getCommunityCenterByAreaAndName = (
     area: string,
     name: string

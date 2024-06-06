@@ -7,6 +7,7 @@ import {
 import { Group } from '../common/users_groups'
 import { getSsmParameter } from '../common/utils'
 import { CommunityCenter } from '../common/type'
+import { UserAddPracticePhase, UserMode } from './user_sessions'
 
 // 定数
 export const CAROUSEL_COLUMN_MAX = 10
@@ -151,6 +152,65 @@ export const createAddPracticeAskGroupMessage = (
             title: '座組を選択',
             text: 'どの座組の稽古を追加しますか？',
             actions: buttons,
+        },
+    }
+}
+
+/**
+ * 稽古予定作成にて日付を尋ねるメッセージを生成する関数
+ * @returns TemplateMessage
+ */
+export const createAddPracticeAskDateMessage = (): TemplateMessage => {
+    return {
+        type: 'template',
+        altText: '稽古予定を追加',
+        template: {
+            type: 'buttons',
+            title: '稽古予定を追加（2/4）',
+            text: '稽古の日付を入力してください',
+            actions: [
+                {
+                    type: 'datetimepicker',
+                    label: '日付を指定',
+                    data: '日付を指定',
+                    mode: 'date',
+                },
+            ],
+        },
+    }
+}
+
+/**
+ * 稽古予定作成にて時間を尋ねるメッセージを生成する関数
+ * @param phase 稽古予定追加のフェーズ
+ * @returns
+ */
+export const createAddPracticeAskTimeMessage = (
+    phase: UserAddPracticePhase
+): TemplateMessage => {
+    const title =
+        phase === UserAddPracticePhase.AskStart
+            ? '稽古予定を追加（3/4）'
+            : '稽古予定を追加（4/4）'
+    const text =
+        phase === UserAddPracticePhase.AskStart
+            ? '稽古の開始時間を入力してください'
+            : '稽古の終了時間を入力してください'
+    return {
+        type: 'template',
+        altText: '稽古予定を追加',
+        template: {
+            type: 'buttons',
+            title,
+            text,
+            actions: [
+                {
+                    type: 'datetimepicker',
+                    label: '日付を指定',
+                    data: '日付を指定',
+                    mode: 'time',
+                },
+            ],
         },
     }
 }

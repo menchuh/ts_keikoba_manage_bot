@@ -1,5 +1,6 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { ErrorObject, HeaderObject } from './type'
+import dayjs from 'dayjs'
 
 const ssmClient = new SSMClient()
 
@@ -58,4 +59,13 @@ export const getSsmParameter = async (key: string): Promise<string> => {
     }
 
     return response.Parameter.Value
+}
+
+/**
+ * 与えられた日付が今日より前の日付かどうか判定する関数
+ * @param date 日付
+ * @returns
+ */
+export const isBeforeToday = (date: string): boolean => {
+    return dayjs(date).isBefore(dayjs())
 }

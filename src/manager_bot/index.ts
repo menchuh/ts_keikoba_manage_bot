@@ -4,8 +4,14 @@ import {
     LINE_SIGNATURE_HTTP_HEADER_NAME,
     validateSignature,
     WebhookRequestBody,
+    Postback,
 } from '@line/bot-sdk'
-import { getErrorBody, getHeaders, getSsmParameter } from '../common/utils'
+import {
+    getErrorBody,
+    getHeaders,
+    getSsmParameter,
+    isBeforeToday,
+} from '../common/utils'
 import { logger } from '../common/logger'
 import { deleteUserByID, getUserByID, putInitialUserItem } from './dynamodb'
 import {
@@ -18,6 +24,7 @@ import {
     getGroupByID,
     getPracticesByGroupID,
     getUsersByGroupID,
+    isSamePracticeItemExists,
     putRelationItem,
 } from '../common/dynamodb'
 import {
@@ -36,6 +43,8 @@ import {
     getPushMessageCount,
     ConfirmTemplateAction,
     createWithdrawGroupConfirmMessage,
+    createAddPracticeAskDateMessage,
+    createAddPracticeAskTimeMessage,
 } from './messages'
 import {
     communityCenters,
@@ -43,6 +52,14 @@ import {
 } from '../common/community_centers'
 import { CommunityCenter } from '../common/type'
 import { getMessageDateFormat } from '../notification/utils'
+
+// exportされていないので自分で宣言する
+// https://github.com/line/line-bot-sdk-nodejs/blob/5b21bc4624bbfcf54c79f7785394d55f3670870e/lib/types.ts#L601
+type DateTimePostback = {
+    date?: string
+    time?: string
+    datetime?: string
+}
 
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
@@ -644,8 +661,99 @@ export const lambdaHandler = async (
                         data: {
                             group_id: group?.group_id,
                             group_name: group?.group_name,
+                            place: place,
                         },
                     }
+                    await updateUserSession(session, userId)
+                    // メッセージ送信
+                    await client.replyMessage({
+                        replyToken: lineEvent.replyToken,
+                        messages: [createAddPracticeAskDateMessage()],
+                    })
+                } else if (
+                    user.session.phase === UserAddPracticePhase.AskDate
+                ) {
+                    const params = lineEvent.postback.params as DateTimePostback
+                    const date = params.date!
+                    if (isBeforeToday(date)) {
+                        // 日付が今日より前の場合
+                        // メッセージ送信
+                        const text =
+                            '【エラー】\n日付には今日以降の日付を指定してください'
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    } else {
+                        // 日付が今日以降の場合
+                        // セッション更新
+                        const session: UserSession = {
+                            mode: UserMode.AddPractice,
+                            phase: UserAddPracticePhase.AskStart,
+                            data: {
+                                group_id: user.session.data?.group_id,
+                                group_name: user.session.data?.group_name,
+                                place: user.session.data?.place,
+                                date: date,
+                            },
+                        }
+                        await updateUserSession(session, userId)
+                        // メッセージ送信
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [
+                                createAddPracticeAskTimeMessage(
+                                    UserAddPracticePhase.AskStart
+                                ),
+                            ],
+                        })
+                    }
+                } else if (
+                    user.session.phase === UserAddPracticePhase.AskStart
+                ) {
+                    const params = lineEvent.postback.params as DateTimePostback
+                    const startTime = params.time!
+                    const dateStartPlace = `${user.session.data?.date}#${startTime}#${user.session.data?.place}`
+                    if (
+                        await isSamePracticeItemExists(
+                            user.session.data?.group_id!,
+                            dateStartPlace
+                        )
+                    ) {
+                        // 同じ稽古データが登録済みの場合
+                        // セッション情報のクリア
+                        await updateUserSession({}, userId)
+                        // メッセージ送信
+                        const text =
+                            '一つの座組の稽古予定に、同じ稽古場で同じ日付、同じ開始時間の稽古は二つ以上登録できません。\n初めからやりなおしてください'
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    } else {
+                        // セッション更新
+                        // メッセージ送信
+                    }
+                } else if (user.session.phase === UserAddPracticePhase.AskEnd) {
+                    // 登録完了
+                } else {
+                    // セッションに予期しないフェーズが格納されていた場合
+                    // エラーログ出力
+                    logger.error(
+                        `An error has occurred on ${UserMode.AddPractice} mode.`
+                    )
+                    logger.error(
+                        `Unexpected phase in session: ${user.session.phase}`
+                    )
+                    // セッション情報のクリア
+                    await updateUserSession({}, userId)
+                    // メッセージ送信
+                    const text =
+                        'エラーが発生しました。最初からやり直してください'
+                    await client.replyMessage({
+                        replyToken: lineEvent.replyToken,
+                        messages: [{ type: 'text', text: text }],
+                    })
                 }
             }
 
