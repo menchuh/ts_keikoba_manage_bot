@@ -4,6 +4,7 @@ import {
     UserMode,
     UserNotifyPracticesWithdrawGroupPhase,
 } from '../manager_bot/user_sessions'
+import { CreatePracticeData } from './practices'
 
 // 定数
 export enum EntityType {
@@ -66,12 +67,5 @@ export class UserSession {
     phase?: UserNotifyPracticesWithdrawGroupPhase | UserAddPracticePhase
 
     @IsObject()
-    data?: {
-        group_id?: string
-        group_name?: string
-        place?: string
-        date?: string
-        start_time?: string
-        end_time?: string
-    }
+    data?: CreatePracticeData
 }

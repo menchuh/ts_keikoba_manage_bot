@@ -37,3 +37,23 @@ export class Practice {
     @IsString()
     start_time: string
 }
+
+export class CreatePracticeData {
+    @IsString()
+    group_id?: string
+
+    @IsString()
+    group_name?: string
+
+    @IsString()
+    place?: string
+
+    @IsString()
+    date?: string
+
+    @IsString()
+    start_time?: string
+
+    @IsString()
+    end_time?: string
+}

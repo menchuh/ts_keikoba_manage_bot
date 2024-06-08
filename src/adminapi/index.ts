@@ -17,6 +17,7 @@ import { plainToClass } from 'class-transformer'
 import { Practice } from '../common/practices'
 
 // 定数
+const ADMIN_USER_NAME = '管理者'
 const DATE_FORMAT_REGEXP = new RegExp('d{4}/d{2}/d{2}')
 const PRACTICE_REQUIRED_KEYS = ['place', 'date', 'start_time', 'end_time']
 const TIME_FORMAT = 'HH:mm'
@@ -282,6 +283,7 @@ export const lambdaHandler = async (
             // ログの書き込み
             await writePracticesChangeLog(
                 groupId,
+                ADMIN_USER_NAME,
                 EventType.add,
                 plainToClass(Practice, {
                     group_id: groupId,
@@ -431,6 +433,7 @@ export const lambdaHandler = async (
                     // ログの書き込み
                     await writePracticesChangeLog(
                         groupId,
+                        ADMIN_USER_NAME,
                         EventType.Delete,
                         plainToClass(Practice, {
                             group_id: groupId,

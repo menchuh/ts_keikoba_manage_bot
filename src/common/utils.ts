@@ -69,3 +69,26 @@ export const getSsmParameter = async (key: string): Promise<string> => {
 export const isBeforeToday = (date: string): boolean => {
     return dayjs(date).isBefore(dayjs())
 }
+
+/**
+ * 与えられた時刻Aが時刻Bより前かどうか判定する関数
+ * @param date 日付
+ * @returns
+ */
+export const isTimeABeforeTimeB = (timeA: string, timeB: string): boolean => {
+    const timeReExp = new RegExp(/(\d{2}):\d{2}/)
+    const timeAMatches = timeReExp.exec(timeA)
+    const timeBMatches = timeReExp.exec(timeB)
+
+    if (!Array.isArray(timeAMatches) || !Array.isArray(timeBMatches)) {
+        throw new Error()
+    }
+
+    const timeADateTime = dayjs()
+        .set('hour', Number(timeAMatches[0]))
+        .set('minute', Number(timeAMatches[1]))
+    const timeBDateTime = dayjs()
+        .set('hour', Number(timeBMatches[0]))
+        .set('minute', Number(timeBMatches[1]))
+    return timeADateTime.isBefore(timeBDateTime)
+}

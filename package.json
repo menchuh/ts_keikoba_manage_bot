@@ -1,11 +1,8 @@
 {
     "name": "keiko_manager_bot",
-    "version": "0.1.0",
-    "bin": {
-        "keiko_manager_bot": "bin/keiko_manager_bot.js"
-    },
+    "version": "1.1.0",
     "scripts": {
-        "build": "tsc",
+        "build": "node esbuild.js",
         "lint": "eslint src/*.ts",
         "test": "vitest"
     },
@@ -16,6 +13,7 @@
         "@typescript-eslint/eslint-plugin": "^7.11.0",
         "@typescript-eslint/parser": "^7.11.0",
         "aws-cdk": "2.143.0",
+        "esbuild": "^0.21.4",
         "eslint": "^9.4.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-prettier": "^5.1.3",

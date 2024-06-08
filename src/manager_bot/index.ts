@@ -11,8 +11,9 @@ import {
     getHeaders,
     getSsmParameter,
     isBeforeToday,
+    isTimeABeforeTimeB,
 } from '../common/utils'
-import { logger } from '../common/logger'
+import { EventType, logger, writePracticesChangeLog } from '../common/logger'
 import { deleteUserByID, getUserByID, putInitialUserItem } from './dynamodb'
 import {
     UserAddPracticePhase,
@@ -31,7 +32,11 @@ import {
     updateUserBelongingGroups,
     updateUserSession,
 } from '../notification/dynamodb'
-import { JOINABLE_GROUP_COUNT, UserSession } from '../common/users_groups'
+import {
+    EntityType,
+    JOINABLE_GROUP_COUNT,
+    UserSession,
+} from '../common/users_groups'
 import { Practice } from '../common/practices'
 import {
     CAROUSEL_COLUMN_MAX,
@@ -732,10 +737,71 @@ export const lambdaHandler = async (
                         })
                     } else {
                         // セッション更新
+                        const session: UserSession = {
+                            mode: UserMode.AddPractice,
+                            phase: UserAddPracticePhase.AskEnd,
+                            data: {
+                                group_id: user.session.data?.group_id,
+                                group_name: user.session.data?.group_name,
+                                place: user.session.data?.date,
+                                start_time: startTime,
+                            },
+                        }
+                        await updateUserSession(session, userId)
                         // メッセージ送信
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [
+                                createAddPracticeAskTimeMessage(
+                                    UserAddPracticePhase.AskEnd
+                                ),
+                            ],
+                        })
                     }
                 } else if (user.session.phase === UserAddPracticePhase.AskEnd) {
-                    // 登録完了
+                    // 登録完了（終了時間入力）
+                    const params = lineEvent.postback.params as DateTimePostback
+                    const endTime = params.time!
+                    if (
+                        isTimeABeforeTimeB(
+                            user.session.data?.start_time!,
+                            endTime
+                        )
+                    ) {
+                        // 終了時間が開始時間より前の場合
+                        // メッセージ送信
+                        const text =
+                            '【エラー】\n終了時間には、開始時間より後の時間を指定してください'
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: text }],
+                        })
+                    } else {
+                        // 正常系
+                        const data = Object.assign(user.session.data!, {
+                            end_time: endTime,
+                        })
+                        const groupId = user.session.data?.group_id
+                        const practiceInfo = `[座組]\n${data.group_name}\n[場所]\n${data.place}\n[日付]\n${data.date}\n[時間]\n${data.start_time}~${data.end_time}`
+                        // データの格納
+                        // セッション情報のクリア
+                        await updateUserSession({}, userId)
+                        // メッセージ送信
+                        const text = `以下の内容で登録しました。\n${practiceInfo}`
+                        await client.replyMessage({
+                            replyToken: lineEvent.replyToken,
+                            messages: [{ type: 'text', text: 'text' }],
+                        })
+                        // ログの保存
+                        const userName = (await client.getProfile(userId))
+                            .displayName
+                        await writePracticesChangeLog(
+                            groupId!,
+                            userName,
+                            EventType.add,
+                            data
+                        )
+                    }
                 } else {
                     // セッションに予期しないフェーズが格納されていた場合
                     // エラーログ出力

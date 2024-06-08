@@ -8,7 +8,7 @@ import {
 import { User } from '../common/users_groups'
 import { TABLE_CONSTANT } from '../common/dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { EntityType } from '../common/utils'
+import { EntityType } from '../common/users_groups'
 import { plainToClass } from 'class-transformer'
 
 // AWSリソース
