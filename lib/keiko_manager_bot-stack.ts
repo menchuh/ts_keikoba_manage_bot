@@ -9,6 +9,12 @@ import {
     aws_lambda,
 } from 'aws-cdk-lib'
 import { RetentionDays } from 'aws-cdk-lib/aws-logs'
+import {
+    Effect,
+    ManagedPolicy,
+    PolicyStatement,
+    Role,
+} from 'aws-cdk-lib/aws-iam'
 import { Construct } from 'constructs'
 import * as imagedeploy from 'cdk-docker-image-deployment'
 import path from 'path'
@@ -20,6 +26,10 @@ export class KeikoManagerBotStack extends Stack {
 
         // Dockerイメージに付するタグ
         const dockerImageTag = ulid()
+
+        // AWS情報
+        const accountId = Stack.of(this).account
+        const tokyoRegion = 'ap-northeast-1'
 
         //============================================
         // API Gateway
@@ -65,13 +75,13 @@ export class KeikoManagerBotStack extends Stack {
         // Elastic Container Registry
         //============================================
         // Create ECR Repository
-        const repositoryPrefix = 'KeikobaManageBot'
+        const repositoryPrefix = 'keikoba_maanagebot'
         const ecrRepository = new aws_ecr.Repository(
             this,
             `${repositoryPrefix}-ts`,
             {
                 imageScanOnPush: true,
-                repositoryName: `${repositoryPrefix}-ts-repo`,
+                repositoryName: `${repositoryPrefix}_ts_repo`,
                 lifecycleRules: [
                     {
                         description: 'Repository for Keikoba Manage bot image.',
@@ -154,7 +164,6 @@ export class KeikoManagerBotStack extends Stack {
                 day: '*',
                 hour: '12',
                 minute: '0',
-                weekDay: '*',
             }),
             targets: [
                 new aws_events_targets.LambdaFunction(
@@ -162,6 +171,87 @@ export class KeikoManagerBotStack extends Stack {
                 ),
             ],
         })
+
+        //============================================
+        // IAM Role
+        //============================================
+        // ポリシーの生成
+        // DynamoDB
+        const listAndDescribeDynaoDBPolicyStatement = new PolicyStatement({
+            actions: [
+                'dynamodb:List*',
+                'dynamodb:DescribeReservedCapacity*',
+                'dynamodb:DescribeLimits',
+                'dynamodb:DescribeTimeToLive',
+            ],
+            effect: Effect.ALLOW,
+            resources: ['*'],
+        })
+        const accessDynamoDBPolicyStatement = new PolicyStatement({
+            actions: [
+                'dynamodb:DescribeTable',
+                'dynamodb:Get*',
+                'dynamodb:Query',
+                'dynamodb:Scan',
+                'dynamodb:DeleteItem',
+                'dynamodb:UpdateItem',
+                'dynamodb:PutItem',
+            ],
+            effect: Effect.ALLOW,
+            resources: [
+                `arn:aws:dynamodb:${tokyoRegion}:${accountId}:table/keikoba_practices`,
+                `arn:aws:dynamodb:${tokyoRegion}:${accountId}:table/keikoba_users_groups`,
+            ],
+        })
+
+        // S3
+        const listS3PolicyStatement = new PolicyStatement({
+            actions: ['s3:ListBucket'],
+            effect: Effect.ALLOW,
+            resources: ['arn:aws:s3:::isshou-keikoba-bot-logs'],
+        })
+        const operateS3PolicyStatement = new PolicyStatement({
+            actions: ['s3:GetObject', 's3:PutObject'],
+            effect: Effect.ALLOW,
+            resources: ['arn:aws:s3:::isshou-keikoba-bot-logs'],
+        })
+
+        // ポリシーのアタッチ
+        const admnApiLambdaRole = adminApiFuncResource.role as Role
+        const lineManagerBotLambdaRole = lineManagerBotFuncResource.role as Role
+        const lineNoficationLambdaRole =
+            lineNotificationFuncResource.role as Role
+
+        // DynamoDB
+        admnApiLambdaRole.addToPolicy(listAndDescribeDynaoDBPolicyStatement)
+        admnApiLambdaRole.addToPolicy(accessDynamoDBPolicyStatement)
+        lineManagerBotLambdaRole.addToPolicy(
+            listAndDescribeDynaoDBPolicyStatement
+        )
+        lineManagerBotLambdaRole.addToPolicy(accessDynamoDBPolicyStatement)
+        lineNoficationLambdaRole.addToPolicy(
+            listAndDescribeDynaoDBPolicyStatement
+        )
+        lineNoficationLambdaRole.addToPolicy(accessDynamoDBPolicyStatement)
+
+        // SSM
+        admnApiLambdaRole.addManagedPolicy(
+            ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMReadOnlyAccess')
+        )
+        lineManagerBotLambdaRole.addManagedPolicy(
+            ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMReadOnlyAccess')
+        )
+        lineNoficationLambdaRole.addManagedPolicy(
+            ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMReadOnlyAccess')
+        )
+
+        // S3
+        admnApiLambdaRole.addToPolicy(listS3PolicyStatement)
+        admnApiLambdaRole.addToPolicy(operateS3PolicyStatement)
+        lineManagerBotLambdaRole.addToPolicy(listS3PolicyStatement)
+        lineManagerBotLambdaRole.addToPolicy(operateS3PolicyStatement)
+        lineNoficationLambdaRole.addToPolicy(listS3PolicyStatement)
+        lineNoficationLambdaRole.addToPolicy(operateS3PolicyStatement)
 
         //============================================
         // Lambda Proxy Integration
