@@ -8,9 +8,9 @@ import { CreatePracticeData } from './practices'
 
 // 定数
 export enum EntityType {
-    user = 'user',
-    group = 'group',
-    relation = 'relation',
+    user = 'user', // eslint-disable-line no-unused-vars
+    group = 'group', // eslint-disable-line no-unused-vars
+    relation = 'relation', // eslint-disable-line no-unused-vars
 }
 export const JOINABLE_GROUP_COUNT = 4
 

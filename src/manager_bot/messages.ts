@@ -1,19 +1,18 @@
 import {
     CarouselColumn,
-    ConfirmTemplate,
     PostbackAction,
     TemplateMessage,
 } from '@line/bot-sdk/dist/messaging-api/api'
 import { Group } from '../common/users_groups'
 import { getSsmParameter } from '../common/utils'
 import { CommunityCenter } from '../common/type'
-import { UserAddPracticePhase, UserMode } from './user_sessions'
+import { UserAddPracticePhase } from './user_sessions'
 
 // 定数
 export const CAROUSEL_COLUMN_MAX = 10
 export enum ConfirmTemplateAction {
-    approve = 'approve',
-    cancel = 'cancel',
+    approve = 'approve', // eslint-disable-line no-unused-vars
+    cancel = 'cancel', // eslint-disable-line no-unused-vars
 }
 
 /**
@@ -30,7 +29,7 @@ export const getPushMessageCount = (carouselCount: number): number => {
 /**
  * 稽古予定を通知するかどうかの確認ボタンメッセージを生成する関数
  * @param group グループ
- * @returns　ConfirmTemplate
+ * @returns TemplateMessage
  */
 export const createNotifyPracticesConfirmMessage = (
     group: Group

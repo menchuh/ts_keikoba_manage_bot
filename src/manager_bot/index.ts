@@ -4,7 +4,6 @@ import {
     LINE_SIGNATURE_HTTP_HEADER_NAME,
     validateSignature,
     WebhookRequestBody,
-    Postback,
 } from '@line/bot-sdk'
 import {
     getErrorBody,
@@ -32,11 +31,7 @@ import {
     updateUserBelongingGroups,
     updateUserSession,
 } from '../notification/dynamodb'
-import {
-    EntityType,
-    JOINABLE_GROUP_COUNT,
-    UserSession,
-} from '../common/users_groups'
+import { JOINABLE_GROUP_COUNT, UserSession } from '../common/users_groups'
 import { Practice } from '../common/practices'
 import {
     CAROUSEL_COLUMN_MAX,
@@ -114,7 +109,6 @@ export const lambdaHandler = async (
 
     if (user && lineEvent.type === 'follow') {
         logger.error('This user is already exist.')
-        process.exit(1)
     }
 
     if (!user && lineEvent.type !== 'follow') {
@@ -140,7 +134,7 @@ export const lambdaHandler = async (
         const profile = await client.getProfile(userId)
         const userName = profile.displayName
         // メッセージ
-        const text = `こんにちは！　稽古管理Botです\n${userName}さん、これからよろしくね`
+        const text = `こんにちは！ 稽古管理Botです\n${userName}さん、これからよろしくね`
         await client.replyMessage({
             replyToken: lineEvent.replyToken,
             messages: [{ type: 'text', text: text }],
@@ -790,7 +784,7 @@ export const lambdaHandler = async (
                         const text = `以下の内容で登録しました。\n${practiceInfo}`
                         await client.replyMessage({
                             replyToken: lineEvent.replyToken,
-                            messages: [{ type: 'text', text: 'text' }],
+                            messages: [{ type: 'text', text: text }],
                         })
                         // ログの保存
                         const userName = (await client.getProfile(userId))
@@ -798,7 +792,7 @@ export const lambdaHandler = async (
                         await writePracticesChangeLog(
                             groupId!,
                             userName,
-                            EventType.add,
+                            EventType.Add,
                             data
                         )
                     }

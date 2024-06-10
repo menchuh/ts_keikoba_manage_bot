@@ -1,3 +1,4 @@
+/* eslint no-unused-vars: 0 */
 export enum UserMode {
     JoinGroup = 'JoinGroup',
     ListPractices = 'ListPractices',

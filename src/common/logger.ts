@@ -9,12 +9,11 @@ import { CreatePracticeData } from './practices'
 import dayjs from 'dayjs'
 
 // 定数
-const JST_TIMEDIFF = 9
 const LOG_TIMESTAMP_FORMAT = '%Y/%m/%d %H:%M:%S'
 
 export enum EventType {
-    add = '追加',
-    Delete = '削除',
+    Add = '追加', // eslint-disable-line no-unused-vars
+    Delete = '削除', // eslint-disable-line no-unused-vars
 }
 
 // AWSリソース

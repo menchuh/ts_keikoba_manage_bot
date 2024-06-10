@@ -14,6 +14,8 @@ import {
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+    logger.info(event)
+
     // データを格納するオブジェクトの生成
     const data: {
         [key: string]: {

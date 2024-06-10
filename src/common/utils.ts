@@ -18,7 +18,7 @@ export const getHeaders = (): HeaderObject => {
 /**
  * 与えられたステータスコードとメッセージによりErrObjectを返す関数
  * @param statusCode ステータスコード
- * @param message 　エラーメッセージ
+ * @param message エラーメッセージ
  * @returns ErrorObject
  */
 export const getErrorBody = (
@@ -30,8 +30,10 @@ export const getErrorBody = (
     switch (statusCode) {
         case 400:
             error = 'Bad Request'
+            break
         case 404:
             error = 'Not Found'
+            break
         default:
             error = 'Internal Server Error'
     }

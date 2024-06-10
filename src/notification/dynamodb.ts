@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import dayjs from 'dayjs'
 import { TABLE_CONSTANT } from '../common/dynamodb'
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
+import { marshall } from '@aws-sdk/util-dynamodb'
 import { plainToClass } from 'class-transformer'
 import { Practice } from '../common/practices'
 import { UserMode } from '../manager_bot/user_sessions'
