@@ -1,0 +1,20 @@
+# Direcroty
+.github
+.vscode
+bin
+cdk_out
+dist
+doc
+img
+lib
+node_modules
+test
+
+# FIles
+.gitignore
+.npmignrore
+.pretitterrc
+cdk.json
+eslint.config.js
+README.md
+vitest.config.ts

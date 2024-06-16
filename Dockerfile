@@ -7,7 +7,8 @@ WORKDIR /usr/app
 
 # Copy files
 COPY package.json ./
-COPY src/* ./src/
+COPY esbuild.js ./
+COPY src/ ./src/
 
 # install node_modules
 RUN npm install -g yarn

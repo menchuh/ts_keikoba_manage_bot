@@ -16,20 +16,16 @@ import {
     Role,
 } from 'aws-cdk-lib/aws-iam'
 import { Construct } from 'constructs'
-import * as imagedeploy from 'cdk-docker-image-deployment'
-import path from 'path'
-import { ulid } from 'ulid'
 
 export class KeikoManagerBotStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props)
 
-        // Dockerイメージに付するタグ
-        const dockerImageTag = ulid()
-
         // AWS情報
         const accountId = Stack.of(this).account
         const tokyoRegion = 'ap-northeast-1'
+        const repositoryName = 'keikoba_maanagebot_ts_repo'
+        const initialImageTag = 'initial'
 
         //============================================
         // API Gateway
@@ -44,6 +40,9 @@ export class KeikoManagerBotStack extends Stack {
                 restApiName: restApiAdminApiName,
                 deployOptions: {
                     stageName: 'v1',
+                },
+                defaultMethodOptions: {
+                    apiKeyRequired: true,
                 },
             }
         )
@@ -72,35 +71,6 @@ export class KeikoManagerBotStack extends Stack {
         const restApiMessage = restApiMessageApi.root.addResource('messages')
 
         //============================================
-        // Elastic Container Registry
-        //============================================
-        // Create ECR Repository
-        const repositoryPrefix = 'keikoba_maanagebot'
-        const ecrRepository = new aws_ecr.Repository(
-            this,
-            `${repositoryPrefix}-ts`,
-            {
-                imageScanOnPush: true,
-                repositoryName: `${repositoryPrefix}_ts_repo`,
-                lifecycleRules: [
-                    {
-                        description: 'Repository for Keikoba Manage bot image.',
-                        maxImageCount: 5, // 5世代まで保持
-                    },
-                ],
-            }
-        )
-
-        // Create and push Docker image
-        const imageDeployment = 'KeikobaManageBotDockerImageDeploy'
-        new imagedeploy.DockerImageDeployment(this, imageDeployment, {
-            source: imagedeploy.Source.directory(path.join(__dirname, '..')),
-            destination: imagedeploy.Destination.ecr(ecrRepository, {
-                tag: dockerImageTag,
-            }),
-        })
-
-        //============================================
         // Lambda Functions
         //============================================
         // Function #1
@@ -109,10 +79,17 @@ export class KeikoManagerBotStack extends Stack {
             this,
             adminApiFuncName,
             {
-                code: aws_lambda.DockerImageCode.fromEcr(ecrRepository, {
-                    cmd: ['src/adminapi/index.lambdaHandler'],
-                    tagOrDigest: dockerImageTag,
-                }),
+                code: aws_lambda.DockerImageCode.fromEcr(
+                    aws_ecr.Repository.fromRepositoryName(
+                        this,
+                        `${repositoryName}-${adminApiFuncName}`,
+                        repositoryName
+                    ),
+                    {
+                        cmd: ['src/adminapi/index.lambdaHandler'],
+                        tagOrDigest: initialImageTag,
+                    }
+                ),
                 functionName: adminApiFuncName,
                 logRetention: RetentionDays.ONE_MONTH,
                 timeout: Duration.seconds(10),
@@ -125,10 +102,17 @@ export class KeikoManagerBotStack extends Stack {
             this,
             lineManagerBotFuncName,
             {
-                code: aws_lambda.DockerImageCode.fromEcr(ecrRepository, {
-                    cmd: ['src/manager_bot/index.lambdaHandler'],
-                    tagOrDigest: dockerImageTag,
-                }),
+                code: aws_lambda.DockerImageCode.fromEcr(
+                    aws_ecr.Repository.fromRepositoryName(
+                        this,
+                        `${repositoryName}-${lineManagerBotFuncName}`,
+                        repositoryName
+                    ),
+                    {
+                        cmd: ['src/adminapi/index.lambdaHandler'],
+                        tagOrDigest: initialImageTag,
+                    }
+                ),
                 functionName: lineManagerBotFuncName,
                 logRetention: RetentionDays.ONE_MONTH,
                 timeout: Duration.seconds(10),
@@ -141,10 +125,17 @@ export class KeikoManagerBotStack extends Stack {
             this,
             lineNotificationFuncName,
             {
-                code: aws_lambda.DockerImageCode.fromEcr(ecrRepository, {
-                    cmd: ['src/notification/index.lambdaHandler'],
-                    tagOrDigest: dockerImageTag,
-                }),
+                code: aws_lambda.DockerImageCode.fromEcr(
+                    aws_ecr.Repository.fromRepositoryName(
+                        this,
+                        `${repositoryName}-${lineNotificationFuncName}`,
+                        repositoryName
+                    ),
+                    {
+                        cmd: ['src/adminapi/index.lambdaHandler'],
+                        tagOrDigest: initialImageTag,
+                    }
+                ),
                 functionName: lineNotificationFuncName,
                 logRetention: RetentionDays.ONE_MONTH,
                 timeout: Duration.seconds(10),
@@ -289,5 +280,19 @@ export class KeikoManagerBotStack extends Stack {
             'POST',
             new aws_apigateway.LambdaIntegration(adminApiFuncResource)
         )
+
+        //============================================
+        // API Key
+        //============================================
+        const apiKeyName = 'keikobaManagerBotAdminAPIKey'
+        const apiKey = new aws_apigateway.ApiKey(this, apiKeyName, {
+            apiKeyName: apiKeyName,
+        })
+        const usagePlanName = 'keikobaManagerBotAdminUsagePlan'
+        const plan = new aws_apigateway.UsagePlan(this, usagePlanName, {
+            name: usagePlanName,
+        })
+        plan.addApiKey(apiKey)
+        plan.addApiStage({ stage: restApiAdminApi.deploymentStage })
     }
 }

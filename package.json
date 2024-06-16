@@ -1,11 +1,11 @@
 {
     "name": "keiko_manager_bot",
     "version": "1.1.0",
-    "type": "module",
     "scripts": {
         "build": "node esbuild.js",
         "cdk:deploy": "cdk deploy",
         "cdk:diff": "cdk diff",
+        "cdk:synth": "cdk synth",
         "lint": "eslint src/**/*.ts",
         "test": "vitest"
     },
@@ -33,7 +33,7 @@
         "@aws-sdk/util-dynamodb": "^3.585.0",
         "@line/bot-sdk": "^9.2.2",
         "aws-cdk-lib": "2.143.0",
-        "cdk-docker-image-deployment": "^0.0.577",
+        "cdk-ecr-deployment": "^3.0.66",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.1",
         "constructs": "^10.0.0",
