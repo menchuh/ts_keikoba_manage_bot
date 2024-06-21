@@ -35,6 +35,7 @@ export const lambdaHandler = async (
         // GET /groups
         if (resourcePath === '/groups') {
             const groups = await listGroups()
+            console.log(groups)
             const body = groups.map((g) => {
                 return {
                     id: g.group_id,
@@ -284,7 +285,7 @@ export const lambdaHandler = async (
             await writePracticesChangeLog(
                 groupId,
                 ADMIN_USER_NAME,
-                EventType.add,
+                EventType.Add,
                 plainToClass(Practice, {
                     group_id: groupId,
                     group_name: group.group_name,

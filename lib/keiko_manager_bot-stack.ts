@@ -16,6 +16,7 @@ import {
     Role,
 } from 'aws-cdk-lib/aws-iam'
 import { Construct } from 'constructs'
+import { Architecture } from 'aws-cdk-lib/aws-lambda'
 
 export class KeikoManagerBotStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -93,6 +94,7 @@ export class KeikoManagerBotStack extends Stack {
                 functionName: adminApiFuncName,
                 logRetention: RetentionDays.ONE_MONTH,
                 timeout: Duration.seconds(10),
+                architecture: Architecture.ARM_64,
             }
         )
 
@@ -116,6 +118,7 @@ export class KeikoManagerBotStack extends Stack {
                 functionName: lineManagerBotFuncName,
                 logRetention: RetentionDays.ONE_MONTH,
                 timeout: Duration.seconds(10),
+                architecture: Architecture.ARM_64,
             }
         )
 
@@ -139,6 +142,7 @@ export class KeikoManagerBotStack extends Stack {
                 functionName: lineNotificationFuncName,
                 logRetention: RetentionDays.ONE_MONTH,
                 timeout: Duration.seconds(10),
+                architecture: Architecture.ARM_64,
             }
         )
 
