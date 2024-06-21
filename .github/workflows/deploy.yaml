@@ -52,7 +52,7 @@ jobs:
               uses: aws-actions/amazon-ecr-login@v1
 
             - name: build and push docker image
-              uses: docker/build-push-action@v2
+              uses: docker/build-push-action@v4
               id: build-image
               with:
                   push: true
@@ -60,6 +60,7 @@ jobs:
                   tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY_NAME }}:${{ github.sha }}
                   cache-from: type=local,src=/tmp/.buildx-cache
                   cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+                  provenance: false
 
             - name: deploy lambda functions
               env:
