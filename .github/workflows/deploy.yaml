@@ -61,6 +61,7 @@ jobs:
                   cache-from: type=local,src=/tmp/.buildx-cache
                   cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
                   provenance: false
+                  platform: linux/arm64
 
             - name: deploy lambda functions
               env:
