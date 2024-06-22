@@ -8,6 +8,7 @@ on:
             - '.github/workflows/deploy.yaml'
             - 'src/**/*.ts'
             - package.json
+            - Dockerfile
     workflow_dispatch:
 
 env:
