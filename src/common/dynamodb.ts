@@ -108,6 +108,8 @@ export const listGroups = async (): Promise<Group[]> => {
     const command = new QueryCommand(queryItemRequest)
     const res = await client.send(command)
 
+    console.log(res)
+
     if (res.Items) {
         return res.Items.map((item) => {
             return plainToClass(Group, {
