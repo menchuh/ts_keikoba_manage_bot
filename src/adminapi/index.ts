@@ -38,6 +38,7 @@ export const lambdaHandler = async (
     if (httpMethod === 'GET') {
         // GET /groups
         if (resourcePath === '/groups') {
+            /*
             const groups = await listGroups()
             console.log(groups)
             const body = groups.map((g) => {
@@ -46,10 +47,12 @@ export const lambdaHandler = async (
                     name: g.group_name,
                 }
             })
+            */
             return {
                 statusCode: 200,
                 headers: getHeaders(),
-                body: JSON.stringify(body),
+                // body: JSON.stringify(body),
+                body: JSON.stringify({ text: 'test' }),
             }
         }
 
