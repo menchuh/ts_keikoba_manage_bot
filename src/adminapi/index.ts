@@ -23,9 +23,13 @@ const PRACTICE_REQUIRED_KEYS = ['place', 'date', 'start_time', 'end_time']
 const TIME_FORMAT = 'HH:mm'
 const TIME_FORMAT_REGEXP = new RegExp('d{2}:d{2}')
 
+logger.info('lambdaHandlerの外部')
+
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+    logger.info('lambdaHandlerの内部')
+
     // request
     const httpMethod = event.httpMethod
     const resourcePath = event.requestContext.resourcePath

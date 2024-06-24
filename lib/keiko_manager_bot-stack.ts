@@ -26,7 +26,7 @@ export class KeikoManagerBotStack extends Stack {
         const accountId = Stack.of(this).account
         const tokyoRegion = 'ap-northeast-1'
         const repositoryName = 'keikoba_maanagebot_ts_repo'
-        const initialImageTag = 'initial'
+        const imageTag = 'cf4b49cfa3689eef89300975ba1204136b1d8853'
 
         //============================================
         // API Gateway
@@ -88,7 +88,7 @@ export class KeikoManagerBotStack extends Stack {
                     ),
                     {
                         cmd: ['src/adminapi/index.lambdaHandler'],
-                        tagOrDigest: initialImageTag,
+                        tagOrDigest: imageTag,
                     }
                 ),
                 functionName: adminApiFuncName,
@@ -111,8 +111,8 @@ export class KeikoManagerBotStack extends Stack {
                         repositoryName
                     ),
                     {
-                        cmd: ['src/adminapi/index.lambdaHandler'],
-                        tagOrDigest: initialImageTag,
+                        cmd: ['src/manager_bot/index.lambdaHandler'],
+                        tagOrDigest: imageTag,
                     }
                 ),
                 functionName: lineManagerBotFuncName,
@@ -135,8 +135,8 @@ export class KeikoManagerBotStack extends Stack {
                         repositoryName
                     ),
                     {
-                        cmd: ['src/adminapi/index.lambdaHandler'],
-                        tagOrDigest: initialImageTag,
+                        cmd: ['src/notification/index.lambdaHandler'],
+                        tagOrDigest: imageTag,
                     }
                 ),
                 functionName: lineNotificationFuncName,
@@ -211,15 +211,22 @@ export class KeikoManagerBotStack extends Stack {
             resources: ['arn:aws:s3:::isshou-keikoba-bot-logs'],
         })
 
+        // ECR
+        const accessECRPolicyStatement = new PolicyStatement({
+            actions: ['ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer'],
+            effect: Effect.ALLOW,
+            resources: ['*'],
+        })
+
         // ポリシーのアタッチ
-        const admnApiLambdaRole = adminApiFuncResource.role as Role
+        const adminApiLambdaRole = adminApiFuncResource.role as Role
         const lineManagerBotLambdaRole = lineManagerBotFuncResource.role as Role
         const lineNoficationLambdaRole =
             lineNotificationFuncResource.role as Role
 
         // DynamoDB
-        admnApiLambdaRole.addToPolicy(listAndDescribeDynaoDBPolicyStatement)
-        admnApiLambdaRole.addToPolicy(accessDynamoDBPolicyStatement)
+        adminApiLambdaRole.addToPolicy(listAndDescribeDynaoDBPolicyStatement)
+        adminApiLambdaRole.addToPolicy(accessDynamoDBPolicyStatement)
         lineManagerBotLambdaRole.addToPolicy(
             listAndDescribeDynaoDBPolicyStatement
         )
@@ -230,7 +237,7 @@ export class KeikoManagerBotStack extends Stack {
         lineNoficationLambdaRole.addToPolicy(accessDynamoDBPolicyStatement)
 
         // SSM
-        admnApiLambdaRole.addManagedPolicy(
+        adminApiLambdaRole.addManagedPolicy(
             ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMReadOnlyAccess')
         )
         lineManagerBotLambdaRole.addManagedPolicy(
@@ -241,12 +248,17 @@ export class KeikoManagerBotStack extends Stack {
         )
 
         // S3
-        admnApiLambdaRole.addToPolicy(listS3PolicyStatement)
-        admnApiLambdaRole.addToPolicy(operateS3PolicyStatement)
+        adminApiLambdaRole.addToPolicy(listS3PolicyStatement)
+        adminApiLambdaRole.addToPolicy(operateS3PolicyStatement)
         lineManagerBotLambdaRole.addToPolicy(listS3PolicyStatement)
         lineManagerBotLambdaRole.addToPolicy(operateS3PolicyStatement)
         lineNoficationLambdaRole.addToPolicy(listS3PolicyStatement)
         lineNoficationLambdaRole.addToPolicy(operateS3PolicyStatement)
+
+        // ECR
+        adminApiLambdaRole.addToPolicy(accessECRPolicyStatement)
+        lineManagerBotLambdaRole.addToPolicy(accessECRPolicyStatement)
+        lineNoficationLambdaRole.addToPolicy(accessECRPolicyStatement)
 
         //============================================
         // Lambda Proxy Integration

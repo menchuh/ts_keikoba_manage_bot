@@ -7,6 +7,7 @@ WORKDIR /usr/app
 
 # Copy files
 COPY package.json ./
+COPY yarn.lock ./
 COPY esbuild.js ./
 COPY src/ ./src/
 
