@@ -30,4 +30,4 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 # COPY --from=builder /usr/app/dist/notification ./src/notification
 
 COPY --from=builder /usr/app/dist/adminapi ./adminapi/
-CMD ["adminapi/index.lambdaHandler"]
+CMD ["./adminapi/index.lambdaHandler"]
