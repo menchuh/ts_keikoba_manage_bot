@@ -25,6 +25,6 @@ FROM public.ecr.aws/lambda/nodejs:18
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-COPY --from=builder /usr/app/dist/adminapi ./adminapi
-COPY --from=builder /usr/app/dist/manager_bot ./manager_bot
-COPY --from=builder /usr/app/dist/notification ./notification
+COPY --from=builder /usr/app/dist/adminapi ./src/adminapi
+COPY --from=builder /usr/app/dist/manager_bot ./src/manager_bot
+COPY --from=builder /usr/app/dist/notification ./src/notification
