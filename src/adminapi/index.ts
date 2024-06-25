@@ -23,8 +23,6 @@ const PRACTICE_REQUIRED_KEYS = ['place', 'date', 'start_time', 'end_time']
 const TIME_FORMAT = 'HH:mm'
 const TIME_FORMAT_REGEXP = new RegExp('d{2}:d{2}')
 
-logger.info('lambdaHandlerの外部')
-
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -38,21 +36,17 @@ export const lambdaHandler = async (
     if (httpMethod === 'GET') {
         // GET /groups
         if (resourcePath === '/groups') {
-            /*
             const groups = await listGroups()
-            console.log(groups)
             const body = groups.map((g) => {
                 return {
                     id: g.group_id,
                     name: g.group_name,
                 }
             })
-            */
             return {
                 statusCode: 200,
                 headers: getHeaders(),
-                // body: JSON.stringify(body),
-                body: JSON.stringify({ text: 'test' }),
+                body: JSON.stringify(body),
             }
         }
 

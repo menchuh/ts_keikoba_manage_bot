@@ -87,7 +87,7 @@ export class KeikoManagerBotStack extends Stack {
                         repositoryName
                     ),
                     {
-                        cmd: ['src/adminapi/index.lambdaHandler'],
+                        cmd: ['./adminapi/index.lambdaHandler'],
                         tagOrDigest: imageTag,
                     }
                 ),
@@ -111,7 +111,7 @@ export class KeikoManagerBotStack extends Stack {
                         repositoryName
                     ),
                     {
-                        cmd: ['src/manager_bot/index.lambdaHandler'],
+                        cmd: ['./manager_bot/index.lambdaHandler'],
                         tagOrDigest: imageTag,
                     }
                 ),
@@ -135,7 +135,7 @@ export class KeikoManagerBotStack extends Stack {
                         repositoryName
                     ),
                     {
-                        cmd: ['src/notification/index.lambdaHandler'],
+                        cmd: ['./notification/index.lambdaHandler'],
                         tagOrDigest: imageTag,
                     }
                 ),
