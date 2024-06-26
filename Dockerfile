@@ -29,5 +29,8 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 # COPY --from=builder /usr/app/dist/manager_bot ./src/manager_bot
 # COPY --from=builder /usr/app/dist/notification ./src/notification
 
-COPY --from=builder /usr/app/dist/adminapi/index.js ${LAMBDA_TASK_ROOT}
+COPY --from=builder /usr/app/dist/adminapi/index.js .
+
+RUN echo(ls ${LAMBDA_TASK_ROOT})
+
 CMD ["index.lambdaHandler"]
