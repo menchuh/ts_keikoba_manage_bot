@@ -31,6 +31,6 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY --from=builder /usr/app/dist/adminapi/index.js .
 
-RUN echo(ls ${LAMBDA_TASK_ROOT})
+RUN echo $(ls ${LAMBDA_TASK_ROOT})
 
 CMD ["index.lambdaHandler"]
