@@ -8,10 +8,9 @@ WORKDIR /usr/app
 COPY package.json  ./
 COPY yarn.lock  ./
 COPY esbuild.js  ./
-COPY src/adminapi/ ./
+COPY src/adminapi ./
 
 RUN echo $(ls)
-RUN echo $(ls adminapi)
 
 RUN npm install -g yarn
 RUN yarn install
