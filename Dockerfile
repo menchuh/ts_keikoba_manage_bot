@@ -10,6 +10,8 @@ COPY yarn.lock  ./
 COPY esbuild.js  ./
 COPY src/adminapi/ ./adminapi/
 COPY src/common/ ./common/
+COPY src/manager_bot/ ./manager_bot/
+COPY src/notification/ ./manager_bot/
 
 RUN echo $(ls)
 
@@ -26,4 +28,4 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY --from=builder /usr/app/dist/adminapi/* ./
 
-CMD ["index.handler"]
+CMD ["index.lambdaHandler"]
