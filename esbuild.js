@@ -3,9 +3,10 @@ const esbuild = require('esbuild')
 esbuild
     .build({
         entryPoints: [
-            './src/adminapi/index.ts',
-            './src/manager_bot/index.ts',
-            './src/notification/index.ts',
+            './adminapi/index.ts',
+            // './src/adminapi/index.ts',
+            // './src/manager_bot/index.ts',
+            // './src/notification/index.ts',
         ],
         outdir: 'dist',
         bundle: true,
