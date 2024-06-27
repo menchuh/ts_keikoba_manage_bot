@@ -1,6 +1,7 @@
 {
     "name": "keiko_manager_bot",
     "version": "1.1.0",
+    "type": "module",
     "scripts": {
         "build": "node esbuild.js",
         "cdk:deploy": "cdk deploy",
