@@ -42,11 +42,20 @@ export const handler = async (
 
     // GET method
     if (httpMethod === 'GET') {
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'GET: hello world',
-            }),
+        // GET /groups
+        if (resourcePath === '/groups') {
+            const groups = await listGroups()
+            const body = groups.map((g) => {
+                return {
+                    id: g.group_id,
+                    name: g.group_name,
+                }
+            })
+            return {
+                statusCode: 200,
+                headers: getHeaders(),
+                body: JSON.stringify(body),
+            }
         }
     }
 
