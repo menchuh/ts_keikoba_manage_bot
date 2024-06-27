@@ -16,9 +16,6 @@ COPY src/notification/ ./notification/
 RUN npm install -g yarn
 RUN yarn install
 RUN yarn build
-
-RUN echo $(ls)
-RUN echo $(ls dist)
     
 ##################################
 # runner
@@ -28,5 +25,7 @@ FROM public.ecr.aws/lambda/nodejs:18
 WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY --from=builder /usr/app/dist/* ./
+
+RUN echo $(ls)
 
 CMD ["index.lambdaHandler"]
