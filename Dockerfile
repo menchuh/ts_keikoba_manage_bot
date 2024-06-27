@@ -16,6 +16,9 @@ COPY src/notification/ ./notification/
 RUN npm install -g yarn
 RUN yarn install
 RUN yarn build
+
+RUN echo $(ls)
+RUN echo $(ls dist)
     
 ##################################
 # runner
