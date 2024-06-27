@@ -26,7 +26,9 @@ const TIME_FORMAT_REGEXP = new RegExp('d{2}:d{2}')
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+    console.log('console.log1')
     logger.info('lambdaHandlerの内部')
+    console.log('console.log2')
 
     // request
     const httpMethod = event.httpMethod
