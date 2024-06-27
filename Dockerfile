@@ -11,9 +11,7 @@ COPY esbuild.js  ./
 COPY src/adminapi/ ./adminapi/
 COPY src/common/ ./common/
 COPY src/manager_bot/ ./manager_bot/
-COPY src/notification/ ./manager_bot/
-
-RUN echo $(ls)
+COPY src/notification/ ./notification/
 
 RUN npm install -g yarn
 RUN yarn install
