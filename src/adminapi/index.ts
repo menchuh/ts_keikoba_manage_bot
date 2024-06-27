@@ -2,6 +2,7 @@ import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda'
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb'
 import dayjs from 'dayjs'
 import { plainToClass } from 'class-transformer'
+import { createGroupOne, updateGroupOne } from './groups'
 
 export const handler = async (
     event: APIGatewayEvent,
