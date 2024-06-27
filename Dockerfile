@@ -23,6 +23,4 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY --from=builder /usr/app/dist/adminapi/* ./
 
-RUN echo $(ls)
-
 CMD ["index.lambdaHandler"]

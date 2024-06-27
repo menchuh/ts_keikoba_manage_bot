@@ -12,6 +12,7 @@ esbuild
         minify: true,
         sourcemap: true,
         platform: 'node',
+        format: 'esm',
         target: ['es2020'],
         loader: { '.ts': 'ts' },
     })
