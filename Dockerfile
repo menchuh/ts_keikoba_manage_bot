@@ -7,7 +7,7 @@ WORKDIR /usr/app
 
 COPY package.json  ./
 COPY yarn.lock  ./
-COPY esbuild.js  ./
+COPY esbuild.ts  ./
 COPY src/ ./src/
 
 RUN npm install -g yarn
