@@ -27,6 +27,6 @@ FROM public.ecr.aws/lambda/nodejs:18
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-COPY --from=builder /usr/app/dist/adminapi/* ./
+COPY --from=builder /usr/app/dist/* ./
 
 CMD ["index.lambdaHandler"]
