@@ -94,6 +94,7 @@ export const getUsersByGroupID = async (groupId: string): Promise<string[]> => {
  * @returns Group[]
  */
 export const listGroups = async (): Promise<Group[]> => {
+    /*
     const queryItemRequest: QueryCommandInput = {
         TableName: TABLE_CONSTANT.users_groups_table,
         IndexName: TABLE_CONSTANT.index_name,
@@ -106,7 +107,8 @@ export const listGroups = async (): Promise<Group[]> => {
         }),
     }
     const command = new QueryCommand(queryItemRequest)
-    // const res = await client.send(command)
+    const res = await client.send(command)
+    */
 
     return [
         {
