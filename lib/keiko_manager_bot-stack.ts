@@ -196,6 +196,7 @@ export class KeikoManagerBotStack extends Stack {
             resources: [
                 `arn:aws:dynamodb:${tokyoRegion}:${accountId}:table/keikoba_practices`,
                 `arn:aws:dynamodb:${tokyoRegion}:${accountId}:table/keikoba_users_groups`,
+                `arn:aws:dynamodb:${tokyoRegion}:${accountId}:table/keikoba_users_groups/index/*`,
             ],
         })
 
