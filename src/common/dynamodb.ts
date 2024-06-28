@@ -15,6 +15,7 @@ import { EntityType, Group } from './users_groups.js'
 import { Practice } from './practices.js'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 import dayjs from 'dayjs'
+import { logger } from './logger.js'
 
 // AWSリソース
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })
@@ -46,13 +47,16 @@ export const getGroupByID = async (groupId: string): Promise<Group | null> => {
     const command = new GetItemCommand(getItemRequest)
     const response = await client.send(command)
 
+    logger.info(response)
+
     if (response.Item) {
+        const item = unmarshall(response.Item!)
         return plainToClass(Group, {
-            group_id: response.Item.group_id,
-            user_id: response.Item.user_id,
-            grooup_name: response.Item.group_name,
-            area: response.Item.area,
-            type: response.Item.type,
+            group_id: item.group_id,
+            user_id: item.user_id,
+            grooup_name: item.group_name,
+            area: item.area,
+            type: item.type,
         })
     } else {
         return null

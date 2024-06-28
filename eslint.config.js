@@ -4,7 +4,7 @@ import typescriptEslintParser from '@typescript-eslint/parser'
 export default [
     // lint対象ファイルの設定
     {
-        files: ['**/*.{js,ts,mjs,mts,cjs,cts,jsx,tsx}'],
+        files: ['**/*.{js,ts,mjs,mts}'],
     },
     {
         ignores: ['**/dist/**'],
@@ -22,6 +22,4 @@ export default [
             },
         },
     },
-
-    //  プラグインの設定 (例: typescript-eslintの有効化)
 ]
