@@ -1,19 +1,16 @@
 import esbuild from 'esbuild'
+import { globbySync } from 'globby'
+
+const entryPoints = globbySync('./src/**/**.ts')
 
 esbuild
     .build({
-        entryPoints: [
-            './src/adminapi/index.ts',
-            './src/manager_bot/index.ts',
-            './src/notification/index.ts',
-        ],
+        entryPoints,
         outdir: 'dist',
         outExtension: {
             '.js': '.mjs',
         },
-        bundle: true,
         minify: true,
-        sourcemap: true,
         platform: 'node',
         format: 'esm',
         target: ['es2020'],
