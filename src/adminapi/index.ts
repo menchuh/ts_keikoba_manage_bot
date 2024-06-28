@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda'
 import { PracticeRequest } from '../common/type.js'
 import { createGroupOne, updateGroupOne } from './groups.js'
