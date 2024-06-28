@@ -37,7 +37,7 @@ export const TABLE_CONSTANT = {
  */
 export const getGroupByID = async (groupId: string): Promise<Group | null> => {
     const getItemRequest: GetItemCommandInput = {
-        TableName: TABLE_CONSTANT.practices_table,
+        TableName: TABLE_CONSTANT.users_groups_table,
         Key: marshall({
             group_id: groupId,
             user_id: groupId,
@@ -109,7 +109,7 @@ export const listGroups = async (): Promise<Group[]> => {
     const res = await client.send(command)
 
     if (res.Items) {
-        return res.Items.map((item) => {
+        return res.Items.map((item) => unmarshall(item)).map((item) => {
             return plainToClass(Group, {
                 group_id: item.group_id,
                 user_id: item.user_id,
