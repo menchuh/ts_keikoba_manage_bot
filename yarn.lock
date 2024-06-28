@@ -1944,11 +1944,6 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.3.tgz#6209321eb2c1712a7e7466422b8cb1fc0d9dd5d8"
   integrity sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==
 
-"@types/validator@^13.11.8":
-  version "13.11.10"
-  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.11.10.tgz#feb364018cdd1f3d970a9e8c7f1c314c0a264fff"
-  integrity sha512-e2PNXoXLr6Z+dbfx5zSh9TRlXJrELycxiaXznp4S5+D2M3b9bqJEitNHA5923jhnB2zzFiZHa2f0SI1HoIahpg==
-
 "@types/yargs-parser@*":
   version "21.0.3"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-21.0.3.tgz#815e30b786d2e8f0dcd85fd5bcf5e1a04d008f15"
@@ -2389,15 +2384,6 @@ class-transformer@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/class-transformer/-/class-transformer-0.5.1.tgz#24147d5dffd2a6cea930a3250a677addf96ab336"
   integrity sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==
-
-class-validator@^0.14.1:
-  version "0.14.1"
-  resolved "https://registry.yarnpkg.com/class-validator/-/class-validator-0.14.1.tgz#ff2411ed8134e9d76acfeb14872884448be98110"
-  integrity sha512-2VEG9JICxIqTpoK1eMzZqaV+u/EiwEJkMGzTrZf6sU/fwsnOITVgYJ8yojSy6CaXtO9V0Cc6ZQZ8h8m4UBuLwQ==
-  dependencies:
-    "@types/validator" "^13.11.8"
-    libphonenumber-js "^1.10.53"
-    validator "^13.9.0"
 
 clone-response@^1.0.2:
   version "1.0.3"
@@ -3220,11 +3206,6 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-libphonenumber-js@^1.10.53:
-  version "1.11.2"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.11.2.tgz#9ddd7d1a1e1be0e7c596c7e09487c362b4f1210c"
-  integrity sha512-V9mGLlaXN1WETzqQvSu6qf6XVAr3nFuJvWsHcuzCCCo6xUKawwSxOPTpan5CGOSKTn5w/bQuCZcLPJkyysgC3w==
-
 local-pkg@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/local-pkg/-/local-pkg-0.5.0.tgz#093d25a346bae59a99f80e75f6e9d36d7e8c925c"
@@ -4024,11 +4005,6 @@ v8-compile-cache-lib@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/v8-compile-cache-lib/-/v8-compile-cache-lib-3.0.1.tgz#6336e8d71965cb3d35a1bbb7868445a7c05264bf"
   integrity sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==
-
-validator@^13.9.0:
-  version "13.12.0"
-  resolved "https://registry.yarnpkg.com/validator/-/validator-13.12.0.tgz#7d78e76ba85504da3fee4fd1922b385914d4b35f"
-  integrity sha512-c1Q0mCiPlgdTVVVIJIrBuxNicYE+t/7oKeI9MWLj3fh/uq2Pxh/3eeWbVZ4OcGW1TUf53At0njHw5SMdA3tmMg==
 
 vite-node@1.6.0:
   version "1.6.0"
