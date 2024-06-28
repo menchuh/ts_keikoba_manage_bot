@@ -1,20 +1,20 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda'
-import { PracticeRequest } from '../common/type'
-import { createGroupOne, updateGroupOne } from './groups'
+import { PracticeRequest } from '../common/type.js'
+import { createGroupOne, updateGroupOne } from './groups.js'
 import {
     createPractice,
     getGroupByID,
     isSamePracticeItemExists,
     listGroups,
-} from '../common/dynamodb'
-import { getErrorBody, getHeaders } from '../common/utils'
-import { CreateGroupRequest, CreatePracticeRequest } from './type'
+} from '../common/dynamodb.js'
+import { getErrorBody, getHeaders } from '../common/utils.js'
+import { CreateGroupRequest, CreatePracticeRequest } from './type.js'
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb'
-import { EventType, logger, writePracticesChangeLog } from '../common/logger'
+import { EventType, logger, writePracticesChangeLog } from '../common/logger.js'
 import dayjs from 'dayjs'
-import { communityCenters } from '../common/community_centers'
+import { communityCenters } from '../common/community_centers.js'
 import { plainToClass } from 'class-transformer'
-import { Practice } from '../common/practices'
+import { Practice } from '../common/practices.js'
 
 // 定数
 const ADMIN_USER_NAME = '管理者'
