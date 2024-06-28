@@ -8,12 +8,15 @@ import {
     PutItemInput,
     QueryCommand,
     QueryInput,
+    UpdateItemCommand,
+    UpdateItemInput,
 } from '@aws-sdk/client-dynamodb'
-import { User } from '../common/users_groups'
-import { TABLE_CONSTANT } from '../common/dynamodb'
+import { Group, User, UserMode, UserSession } from '../common/users_groups.js'
+import { TABLE_CONSTANT } from '../common/dynamodb.js'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import { EntityType } from '../common/users_groups'
+import { EntityType } from '../common/users_groups.js'
 import { plainToClass } from 'class-transformer'
+import { logger } from '../common/logger.js'
 
 // AWSリソース
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })
@@ -99,4 +102,69 @@ export const deleteUserByID = async (userId: string) => {
             await client.send(command)
         })
     }
+}
+
+/**
+ * ユーザーの参加している座組情報を更新する関数
+ * @param userId ユーザID
+ * @param groups グループの配列
+ * @param mode ユーザーのモード
+ */
+export const updateUserBelongingGroups = async (
+    userId: string,
+    groups: Group[],
+    mode: UserMode
+) => {
+    // 更新条件の設定
+    let updateExpression: string
+    if (mode === UserMode.JoinGroup) {
+        updateExpression = 'SET groups = list_append(groups, :g)'
+    } else if (mode === UserMode.WithdrawGroup) {
+        updateExpression = 'SET groups = :g'
+    } else {
+        logger.error('Unexpected mode')
+        throw new Error('Unexpected mode')
+    }
+
+    // Userアイテムの更新
+    const updateItemRequest: UpdateItemInput = {
+        TableName: TABLE_CONSTANT.users_groups_table,
+        Key: marshall({
+            user_id: userId,
+            group_id: userId,
+        }),
+        UpdateExpression: updateExpression,
+        ExpressionAttributeValues: marshall({
+            ':g': groups,
+        }),
+    }
+    const command = new UpdateItemCommand(updateItemRequest)
+    await client.send(command)
+}
+
+/**
+ * 特定のユーザーのセッション情報を更新する関数
+ * @param session セッション情報
+ * @param userId ユーザID
+ */
+export const updateUserSession = async (
+    session: UserSession,
+    userId: string
+) => {
+    const updateItemRequest: UpdateItemInput = {
+        TableName: TABLE_CONSTANT.users_groups_table,
+        Key: marshall({
+            group_id: userId,
+            user_id: userId,
+        }),
+        UpdateExpression: 'SET #s = :s',
+        ExpressionAttributeNames: {
+            '#S': 'session',
+        },
+        ExpressionAttributeValues: marshall({
+            ':s': marshall(session),
+        }),
+    }
+    const command = new UpdateItemCommand(updateItemRequest)
+    await client.send(command)
 }

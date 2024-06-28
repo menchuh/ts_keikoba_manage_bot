@@ -1,4 +1,4 @@
-import { CommunityCenter, CommunityCenterConfig } from './type'
+import { CommunityCenter, CommunityCenterConfig } from './type.js'
 
 export const communityCenters: CommunityCenterConfig = {
     '中央区': [

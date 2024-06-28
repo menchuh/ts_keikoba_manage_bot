@@ -1,8 +1,22 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
-import { ErrorObject, HeaderObject } from './type'
+import { ErrorObject, HeaderObject } from './type.js'
 import dayjs from 'dayjs'
 
 const ssmClient = new SSMClient()
+
+// 定数
+const MESSAGE_DATE_FORMAT = '%m/%d'
+const WEEKDAY_ARRAY = ['月', '火', '水', '木', '金', '土', '日']
+
+/**
+ * 日付文字列をLINEメッセージ上で表示する日付フォーマットに変換する関数
+ * @param date 日付文字列
+ * @returns string
+ */
+export const getMessageDateFormat = (date: string): string => {
+    const dt = dayjs(date)
+    return `${dt.format(MESSAGE_DATE_FORMAT)}(${WEEKDAY_ARRAY[dt.day()]})`
+}
 
 /**
  * Lambda Proxy統合で必要なヘッダーを返す関数

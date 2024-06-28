@@ -6,7 +6,7 @@ import {
 import { Group } from '../common/users_groups'
 import { getSsmParameter } from '../common/utils'
 import { CommunityCenter } from '../common/type'
-import { UserAddPracticePhase } from './user_sessions'
+import { UserAddPracticePhase } from '../common/users_groups.js'
 
 // 定数
 export const CAROUSEL_COLUMN_MAX = 10

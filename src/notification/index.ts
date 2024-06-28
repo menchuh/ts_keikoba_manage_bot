@@ -1,15 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { getHeaders, getSsmParameter } from '../common/utils'
-import { logger } from '../common/logger'
-import { getUsersByGroupID, listGroups } from '../common/dynamodb'
+import { getHeaders, getSsmParameter } from '../common/utils.js'
+import { logger } from '../common/logger.js'
+import { getUsersByGroupID, listGroups } from '../common/dynamodb.js'
 import { getTomorrowPractices } from './dynamodb'
-import { Practice } from '../common/practices'
+import { Practice } from '../common/practices.js'
 import * as line from '@line/bot-sdk'
-import {
-    createMapUriAction,
-    getMessageDateFormat,
-    isPracticeContainsGeometry,
-} from './utils'
+import { getMessageDateFormat } from '../common/utils.js'
+import { createMapUriAction, isPracticeContainsGeometry } from './utils.js'
 
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent

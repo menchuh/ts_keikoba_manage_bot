@@ -3,9 +3,9 @@ import {
     PutObjectCommand,
     S3Client,
 } from '@aws-sdk/client-s3'
-import { getSsmParameter } from './utils'
+import { getSsmParameter } from './utils.js'
 import pino from 'pino'
-import { CreatePracticeData } from './practices'
+import { CreatePracticeData } from './practices.js'
 import dayjs from 'dayjs'
 
 // 定数

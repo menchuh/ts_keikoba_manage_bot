@@ -5,11 +5,11 @@ import {
     UpdateItemCommand,
     UpdateItemInput,
 } from '@aws-sdk/client-dynamodb'
-import { getRandomString } from './utils'
-import { CreateGroupResponse } from './type'
-import { TABLE_CONSTANT } from '../common/dynamodb'
+import { getRandomString } from './utils.js'
+import { CreateGroupResponse } from './type.js'
+import { TABLE_CONSTANT } from '../common/dynamodb.js'
 import { marshall } from '@aws-sdk/util-dynamodb'
-import { EntityType } from '../common/users_groups'
+import { EntityType } from '../common/users_groups.js'
 
 // AWSリソース
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })

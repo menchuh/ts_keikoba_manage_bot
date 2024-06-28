@@ -18,7 +18,7 @@ import {
     UserAddPracticePhase,
     UserMode,
     UserNotifyPracticesWithdrawGroupPhase,
-} from './user_sessions'
+} from '../common/users_groups.js'
 import {
     deleteRelationItem,
     getGroupByID,
@@ -27,12 +27,9 @@ import {
     isSamePracticeItemExists,
     putRelationItem,
 } from '../common/dynamodb'
-import {
-    updateUserBelongingGroups,
-    updateUserSession,
-} from '../notification/dynamodb'
-import { JOINABLE_GROUP_COUNT, UserSession } from '../common/users_groups'
-import { Practice } from '../common/practices'
+import { updateUserBelongingGroups, updateUserSession } from './dynamodb.js'
+import { JOINABLE_GROUP_COUNT, UserSession } from '../common/users_groups.js'
+import { Practice } from '../common/practices.js'
 import {
     CAROUSEL_COLUMN_MAX,
     createAddPracticeAskGroupMessage,
@@ -45,13 +42,13 @@ import {
     createWithdrawGroupConfirmMessage,
     createAddPracticeAskDateMessage,
     createAddPracticeAskTimeMessage,
-} from './messages'
+} from './messages.js'
 import {
     communityCenters,
     getCommunityCenterByAreaAndName,
-} from '../common/community_centers'
-import { CommunityCenter } from '../common/type'
-import { getMessageDateFormat } from '../notification/utils'
+} from '../common/community_centers.js'
+import { CommunityCenter } from '../common/type.js'
+import { getMessageDateFormat } from '../common/utils.js'
 
 // exportされていないので自分で宣言する
 // https://github.com/line/line-bot-sdk-nodejs/blob/5b21bc4624bbfcf54c79f7785394d55f3670870e/lib/types.ts#L601
