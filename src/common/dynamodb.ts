@@ -106,9 +106,7 @@ export const listGroups = async (): Promise<Group[]> => {
         }),
     }
     const command = new QueryCommand(queryItemRequest)
-    const res = await client.send(command)
-
-    console.log(res)
+    // const res = await client.send(command)
 
     return [
         {
