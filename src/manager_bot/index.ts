@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import {
     messagingApi,
     LINE_SIGNATURE_HTTP_HEADER_NAME,
@@ -59,7 +59,7 @@ type DateTimePostback = {
 }
 
 export const lambdaHandler = async (
-    event: APIGatewayProxyEvent
+    event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> => {
     // LINEパラメータ取得
     const channelAccessToken = await getSsmParameter(

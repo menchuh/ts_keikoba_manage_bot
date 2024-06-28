@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { getHeaders, getSsmParameter } from '../common/utils.js'
 import { logger } from '../common/logger.js'
 import { getUsersByGroupID, listGroups } from '../common/dynamodb.js'
@@ -9,7 +9,7 @@ import { getMessageDateFormat } from '../common/utils.js'
 import { createMapUriAction, isPracticeContainsGeometry } from './utils.js'
 
 export const lambdaHandler = async (
-    event: APIGatewayProxyEvent
+    event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> => {
     logger.info(event)
 

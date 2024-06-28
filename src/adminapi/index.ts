@@ -1,4 +1,4 @@
-import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda'
+import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { PracticeRequest } from '../common/type.js'
 import { createGroupOne, updateGroupOne } from './groups.js'
 import {
@@ -24,8 +24,7 @@ const TIME_FORMAT = 'HH:mm'
 const TIME_FORMAT_REGEXP = new RegExp('d{2}:d{2}')
 
 export const lambdaHandler = async (
-    event: APIGatewayEvent,
-    context: Context
+    event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> => {
     // request
     const httpMethod = event.httpMethod

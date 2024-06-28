@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import { Practice } from '../common/practices.js'
 import { URIAction } from '@line/bot-sdk/dist/messaging-api/api'
 

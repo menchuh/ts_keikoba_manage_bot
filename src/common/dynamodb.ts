@@ -47,14 +47,12 @@ export const getGroupByID = async (groupId: string): Promise<Group | null> => {
     const command = new GetItemCommand(getItemRequest)
     const response = await client.send(command)
 
-    logger.info(response)
-
     if (response.Item) {
         const item = unmarshall(response.Item!)
         return plainToClass(Group, {
             group_id: item.group_id,
             user_id: item.user_id,
-            grooup_name: item.group_name,
+            group_name: item.group_name,
             area: item.area,
             type: item.type,
         })
