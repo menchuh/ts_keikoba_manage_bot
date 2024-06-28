@@ -44,7 +44,17 @@ export const handler = async (
     if (httpMethod === 'GET') {
         // GET /groups
         if (resourcePath === '/groups') {
-            const groups = await listGroups()
+            // const groups = await listGroups()
+            const groups = [
+                {
+                    group_id: 'AAAAA',
+                    group_name: 'あああああ',
+                },
+                {
+                    group_id: 'BBBBB',
+                    group_name: 'あああああ',
+                },
+            ]
             const body = groups.map((g) => {
                 return {
                     id: g.group_id,
