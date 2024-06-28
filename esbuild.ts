@@ -7,9 +7,6 @@ esbuild
     .build({
         entryPoints,
         outdir: 'dist',
-        outExtension: {
-            '.js': '.mjs',
-        },
         minify: true,
         platform: 'node',
         format: 'esm',
