@@ -94,7 +94,6 @@ export const getUsersByGroupID = async (groupId: string): Promise<string[]> => {
  * @returns Group[]
  */
 export const listGroups = async (): Promise<Group[]> => {
-    /*
     const queryItemRequest: QueryCommandInput = {
         TableName: TABLE_CONSTANT.users_groups_table,
         IndexName: TABLE_CONSTANT.index_name,
@@ -108,26 +107,7 @@ export const listGroups = async (): Promise<Group[]> => {
     }
     const command = new QueryCommand(queryItemRequest)
     const res = await client.send(command)
-    */
 
-    return [
-        {
-            group_id: 'AAAAA',
-            group_name: 'あああああ',
-            user_id: 'AAAAA',
-            area: 'bbb',
-            type: EntityType.group,
-        },
-        {
-            group_id: 'BBBBB',
-            group_name: 'あああああ',
-            user_id: 'BBBBB',
-            area: 'ccc',
-            type: EntityType.group,
-        },
-    ]
-
-    /*
     if (res.Items) {
         return res.Items.map((item) => {
             return plainToClass(Group, {
@@ -141,7 +121,6 @@ export const listGroups = async (): Promise<Group[]> => {
     } else {
         return []
     }
-    */
 }
 
 //============================================

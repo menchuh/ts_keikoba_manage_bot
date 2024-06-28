@@ -28,4 +28,4 @@ COPY --from=builder /usr/app/dist/common/* ./common/
 COPY --from=builder /usr/app/dist/manager_bot/* ./manager_bot/
 COPY --from=builder /usr/app/dist/notification/* ./notification/
 
-CMD ["adminapi/index.lambdaHandler"]
+CMD ["adminapi/index.handler"]
