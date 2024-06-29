@@ -64,7 +64,7 @@ export const updateGroupOne = async (groupId: string, groupName: string) => {
             '#t': 'type',
         },
         ExpressionAttributeValues: marshall({
-            ':g': groupId,
+            ':g': EntityType.group,
             ':n': groupName,
         }),
     }
