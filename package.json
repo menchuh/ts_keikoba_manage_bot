@@ -8,11 +8,12 @@
         "cdk:diff": "cdk diff",
         "cdk:synth": "cdk synth",
         "cdk:destroy": "cdk destroy",
-        "gen apidoc": "sh doc/genapidoc.sh",
+        "gen:apidoc": "sh doc/genapidoc.sh",
         "lint": "eslint src/**/*.ts",
         "test": "vitest"
     },
     "devDependencies": {
+        "@redocly/cli": "^1.16.0",
         "@types/aws-lambda": "^8.10.138",
         "@types/jest": "^29.5.12",
         "@types/node": "20.12.7",

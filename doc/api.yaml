@@ -1,343 +1,355 @@
 swagger: '2.0'
 info:
-  description: 稽古予定管理LINE Botの管理用APIです
-  version: 1.0.0
-  title: Keikoba LINE Bot admin API
+    description: 稽古予定管理LINE Botの管理用APIです
+    version: 1.0.0
+    title: Keikoba LINE Bot admin API
+    license:
+        name: nolicense
 host: vobolm5jl0.execute-api.ap-northeast-1.amazonaws.com
 basePath: /dev
 schemes: [https]
+securityDefinitions:
+    ApiKeyAuth:
+        type: apiKey
+        name: x-api-key
+        in: header
+security:
+    - ApiKeyAuth: []
 paths:
-  /groups:
-    get:
-      summary: Get Groups List
-      description: 座組のリストを取得するAPI
-      responses:
-        200:
-          description: 成功時のレスポンス
-          schema:
-            type: object
-            properties:
-              groups:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      example: Pm3uyE
-                    name:
-                      type: string
-                      example: ハロー、グッバイ
-              total:
-                type: integer
-                format: int64
-                example: 2
-        400:
-          description: 失敗時のレスポンス（400）
-          schema:
-            $ref: '#/definitions/400Error'
-        500:
-          description: 失敗時のレスポンス（500）
-          schema:
-            $ref: '#/definitions/500Error'
-    post:
-      summary: Create Group
-      description: 座組を作成するAPI
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              name:
-                description: 座組の名前
-                required: true
-                type: string
-                example: ハロー、グッバイ
-      responses:
-        200:
-          description: 成功時のレスポンス
-          schema:
-            type: object
-            properties:
-              id:
-                type: string
-                example: Pm3uyE
-              name:
-                type: string
-                example: ハロー、グッバイ
-              area:
-                type: string
-                example: 中央区
-        400:
-          description: 失敗時のレスポンス（400）
-          schema:
-            $ref: '#/definitions/400Error'
-        500:
-          description: 失敗時のレスポンス（500）
-          schema:
-            $ref: '#/definitions/500Error'
-  /groups/{group_id}:
-    get:
-      summary: Get Group
-      description: 座組の情報を取得するAPI
-      parameters:
-        - name: group_id
-          in: path
-          description: 取得したい座組のID
-          required: true
-          type: string
-          example: Km3v7W
-      responses:
-        200:
-          description: 成功時のレスポンス
-          schema:
-            type: object
-            properties:
-              id:
-                type: string
-                example: Pm3uyE
-              name:
-                type: string
-                example: ハロー、グッバイ
-        400:
-          description: 失敗時のレスポンス（400）
-          schema:
-            $ref: '#/definitions/400Error'
-        500:
-          description: 失敗時のレスポンス（500）
-          schema:
-            $ref: '#/definitions/500Error'
-    put:
-      summary: Update Group
-      description: 座組の情報を更新するAPI
-      parameters:
-        - name: group_id
-          in: path
-          description: 取得したい座組のID
-          required: true
-          type: string
-          example: Km3v7W
-        - name: name
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              name:
-                description: 座組の名前
-                required: true
-                type: string
-                example: ハロー、グッバイ
-      responses:
-        204:
-          description: 成功時のレスポンス
-        400:
-          description: 失敗時のレスポンス（400）
-          schema:
-            $ref: '#/definitions/400Error'
-        500:
-          description: 失敗時のレスポンス（500）
-          schema:
-            $ref: '#/definitions/500Error'
-  /practice/{group_id}:
-    get:
-      summary: Get Practices
-      description: 座組の稽古予定を取得するAPI
-      parameters:
-        - name: group_id
-          in: path
-          description: 稽古予定を削除したい座組のID
-          required: true
-          type: string
-          example: Km3v7W
-        - name: is_future_only
-          in: query
-          description: 未来の予定のみ取得するか
-          required: false
-          schema:
-            type: boolean
-            example: true
-            default: true
-      responses:
-        200:
-          description: 成功時のレスポンス
-          schema:
-            type: array
-            items:
-              type: object
-              properties:
-                place:
+    /groups:
+        get:
+            summary: Get Groups List
+            description: 座組のリストを取得するAPI
+            operationId: listGroups
+            responses:
+                200:
+                    description: 成功時のレスポンス
+                    schema:
+                        type: object
+                        properties:
+                            groups:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: string
+                                            example: Pm3uyE
+                                        name:
+                                            type: string
+                                            example: ハロー、グッバイ
+                            total:
+                                type: integer
+                                format: int64
+                                example: 2
+                400:
+                    description: 失敗時のレスポンス（400）
+                    schema:
+                        $ref: '#/definitions/400Error'
+                500:
+                    description: 失敗時のレスポンス（500）
+                    schema:
+                        $ref: '#/definitions/500Error'
+        post:
+            summary: Create Group
+            description: 座組を作成するAPI
+            operationId: createGroup
+            parameters:
+                - name: body
+                  in: body
+                  required: true
+                  schema:
+                      type: object
+                      required:
+                          - name
+                      example:
+                          - name: ハロー、グッバイ
+                      properties:
+                          name:
+                              description: 座組の名前
+                              type: string
+            responses:
+                200:
+                    description: 成功時のレスポンス
+                    schema:
+                        type: object
+                        properties:
+                            id:
+                                type: string
+                                example: Pm3uyE
+                            name:
+                                type: string
+                                example: ハロー、グッバイ
+                            area:
+                                type: string
+                                example: 中央区
+                400:
+                    description: 失敗時のレスポンス（400）
+                    schema:
+                        $ref: '#/definitions/400Error'
+                500:
+                    description: 失敗時のレスポンス（500）
+                    schema:
+                        $ref: '#/definitions/500Error'
+    /groups/{group_id}:
+        get:
+            summary: Get Group
+            description: 座組の情報を取得するAPI
+            operationId: getGroupById
+            parameters:
+                - name: group_id
+                  in: path
+                  description: 取得したい座組のID
+                  required: true
                   type: string
-                  example: 銀座区民館
-                date:
+            responses:
+                200:
+                    description: 成功時のレスポンス
+                    schema:
+                        type: object
+                        properties:
+                            id:
+                                type: string
+                                example: Pm3uyE
+                            name:
+                                type: string
+                                example: ハロー、グッバイ
+                400:
+                    description: 失敗時のレスポンス（400）
+                    schema:
+                        $ref: '#/definitions/400Error'
+                500:
+                    description: 失敗時のレスポンス（500）
+                    schema:
+                        $ref: '#/definitions/500Error'
+        put:
+            summary: Update Group
+            description: 座組の情報を更新するAPI
+            operationId: updateGroupById
+            parameters:
+                - name: group_id
+                  in: path
+                  description: 取得したい座組のID
+                  required: true
                   type: string
-                  example: 2023-10-01
-                start_time:
+                - name: name
+                  in: body
+                  required: true
+                  schema:
+                      type: object
+                      required:
+                          - name
+                      properties:
+                          name:
+                              description: 座組の名前
+                              type: string
+                              example: ハロー、グッバイ
+            responses:
+                204:
+                    description: 成功時のレスポンス
+                400:
+                    description: 失敗時のレスポンス（400）
+                    schema:
+                        $ref: '#/definitions/400Error'
+                500:
+                    description: 失敗時のレスポンス（500）
+                    schema:
+                        $ref: '#/definitions/500Error'
+    /practice/{group_id}:
+        get:
+            summary: Get Practices
+            description: 座組の稽古予定を取得するAPI
+            operationId: getPracticesByGroupId
+            parameters:
+                - name: group_id
+                  in: path
+                  description: 稽古予定を削除したい座組のID
+                  required: true
                   type: string
-                  example: 13:00
-                end_time:
+                - name: is_future_only
+                  in: query
+                  description: 未来の予定のみ取得するか
+                  required: false
+                  type: boolean
+                  schema:
+                      type: boolean
+                      default: true
+            responses:
+                200:
+                    description: 成功時のレスポンス
+                    schema:
+                        type: array
+                        items:
+                            type: object
+                            properties:
+                                place:
+                                    type: string
+                                    example: 銀座区民館
+                                date:
+                                    type: string
+                                    example: 2023-10-01
+                                start_time:
+                                    type: string
+                                    example: 13:00
+                                end_time:
+                                    type: string
+                                    example: 17:00
+                400:
+                    description: 失敗時のレスポンス（400）
+                    schema:
+                        $ref: '#/definitions/400Error'
+                500:
+                    description: 失敗時のレスポンス（500）
+                    schema:
+                        $ref: '#/definitions/500Error'
+        post:
+            summary: Create Practice
+            description: 座組の稽古予定を追加するAPI
+            operationId: createPracticeToGroup
+            parameters:
+                - name: group_id
+                  in: path
+                  description: 稽古予定を追加したい座組のID
+                  required: true
                   type: string
-                  example: 17:00
-        400:
-          description: 失敗時のレスポンス（400）
-          schema:
-            $ref: '#/definitions/400Error'
-        500:
-          description: 失敗時のレスポンス（500）
-          schema:
-            $ref: '#/definitions/500Error'
-    post:
-      summary: Create Practice
-      description: 座組の稽古予定を追加するAPI
-      parameters:
-        - name: group_id
-          in: path
-          description: 稽古予定を追加したい座組のID
-          required: true
-          type: string
-          example: Km3v7W
-        - name: body
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              place:
-                description: 稽古の場所
-                required: true
-                type: string
-                example: 銀座区民館
-              date:
-                description: 稽古の日付
-                required: true
-                type: string
-                example: 2023-10-01
-              start_time:
-                description: 稽古の開始時間
-                required: true
-                type: string
-                example: '13:00'
-              end_time:
-                description: 稽古の終了時間
-                required: true
-                type: string
-                example: '17:00'
-      responses:
-        200:
-          description: 成功時のレスポンス
-          schema:
-            type: object
-            properties:
-              group_id:
-                description: 座組ID
-                type: string
-                example: Pm3uyE
-              group_name:
-                description: 座組の名前
-                type: string
-                example: ハロー、グッバイ
-              place:
-                description: 稽古の場所
-                type: string
-                example: 銀座区民館
-              date:
-                description: 稽古の日付
-                type: string
-                example: 2023-10-01
-              start_time:
-                description: 稽古の開始時間
-                type: string
-                example: '13:00'
-              end_time:
-                description: 稽古の終了時間
-                type: string
-                example: '17:00'
-        400:
-          description: 失敗時のレスポンス（400）
-          schema:
-            $ref: '#/definitions/400Error'
-        500:
-          description: 失敗時のレスポンス（500）
-          schema:
-            $ref: '#/definitions/500Error'
-    delete:
-      summary: Delete Practice
-      description: 座組の稽古予定を削除するAPI
-      parameters:
-        - name: group_id
-          in: path
-          description: 稽古予定を削除したい座組のID
-          required: true
-          type: string
-          example: Km3v7W
-        - name: body
-          in: body
-          required: true
-          schema:
-            type: object
-            properties:
-              place:
-                description: 稽古の場所
-                required: true
-                type: string
-                example: 銀座区民館
-              date:
-                description: 稽古の日付
-                required: true
-                type: string
-                example: 2023-10-01
-              start_time:
-                description: 稽古の開始時間
-                required: true
-                type: string
-                example: '13:00'
-              end_time:
-                description: 稽古の終了時間
-                required: true
-                type: string
-                example: '17:00'
-      responses:
-        204:
-          description: 成功時のレスポンス
-        400:
-          description: 失敗時のレスポンス（400）
-          schema:
-            $ref: '#/definitions/400Error'
-        404:
-          description: 失敗時のレスポンス（404）
-          schema:
-            $ref: '#/definitions/404Error'
-        500:
-          description: 失敗時のレスポンス（500）
-          schema:
-            $ref: '#/definitions/500Error'
+                - name: body
+                  in: body
+                  required: true
+                  schema:
+                      type: object
+                      required:
+                          - place
+                          - date
+                          - start_time
+                          - end_time
+                      properties:
+                          place:
+                              description: 稽古の場所
+                              type: string
+                              example: 銀座区民館
+                          date:
+                              description: 稽古の日付
+                              type: string
+                              example: 2023-10-01
+                          start_time:
+                              description: 稽古の開始時間
+                              type: string
+                              example: '13:00'
+                          end_time:
+                              description: 稽古の終了時間
+                              type: string
+                              example: '17:00'
+            responses:
+                200:
+                    description: 成功時のレスポンス
+                    schema:
+                        type: object
+                        properties:
+                            group_id:
+                                description: 座組ID
+                                type: string
+                                example: Pm3uyE
+                            group_name:
+                                description: 座組の名前
+                                type: string
+                                example: ハロー、グッバイ
+                            place:
+                                description: 稽古の場所
+                                type: string
+                                example: 銀座区民館
+                            date:
+                                description: 稽古の日付
+                                type: string
+                                example: 2023-10-01
+                            start_time:
+                                description: 稽古の開始時間
+                                type: string
+                                example: '13:00'
+                            end_time:
+                                description: 稽古の終了時間
+                                type: string
+                                example: '17:00'
+                400:
+                    description: 失敗時のレスポンス（400）
+                    schema:
+                        $ref: '#/definitions/400Error'
+                500:
+                    description: 失敗時のレスポンス（500）
+                    schema:
+                        $ref: '#/definitions/500Error'
+        delete:
+            summary: Delete Practice
+            description: 座組の稽古予定を削除するAPI
+            operationId: deletePracticeFromGroup
+            parameters:
+                - name: group_id
+                  in: path
+                  description: 稽古予定を削除したい座組のID
+                  required: true
+                  type: string
+                - name: body
+                  in: body
+                  required: true
+                  schema:
+                      type: object
+                      required:
+                          - place
+                          - date
+                          - start_time
+                          - end_time
+                      properties:
+                          place:
+                              description: 稽古の場所
+                              type: string
+                          date:
+                              description: 稽古の日付
+                              type: string
+                          start_time:
+                              description: 稽古の開始時間
+                              type: string
+                          end_time:
+                              description: 稽古の終了時間
+                              type: string
+            responses:
+                204:
+                    description: 成功時のレスポンス
+                400:
+                    description: 失敗時のレスポンス（400）
+                    schema:
+                        $ref: '#/definitions/400Error'
+                404:
+                    description: 失敗時のレスポンス（404）
+                    schema:
+                        $ref: '#/definitions/404Error'
+                500:
+                    description: 失敗時のレスポンス（500）
+                    schema:
+                        $ref: '#/definitions/500Error'
 definitions:
-  400Error:
-    type: object
-    properties:
-      error:
-        type: string
-        example: Bad Request
-      message:
-        type: string
-        example: body is empty
-  404Error:
-    type: object
-    properties:
-      error:
-        type: string
-        example: Not Found
-      message:
-        type: string
-        example: Specified item is not found.
-  500Error:
-    type: object
-    properties:
-      error:
-        type: string
-        example: Internal Server Error
-      message:
-        type: string
-        example: Unexpected error has occured
+    400Error:
+        type: object
+        properties:
+            error:
+                type: string
+                example: Bad Request
+            message:
+                type: string
+                example: body is empty
+    404Error:
+        type: object
+        properties:
+            error:
+                type: string
+                example: Not Found
+            message:
+                type: string
+                example: Specified item is not found.
+    500Error:
+        type: object
+        properties:
+            error:
+                type: string
+                example: Internal Server Error
+            message:
+                type: string
+                example: Unexpected error has occured

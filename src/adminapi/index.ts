@@ -4,6 +4,7 @@ import { createGroupOne, deleteGroupOne, updateGroupOne } from './groups.js'
 import {
     createPractice,
     getGroupByID,
+    getUsersByGroupID,
     isSamePracticeItemExists,
     listGroups,
 } from '../common/dynamodb.js'
@@ -121,7 +122,7 @@ export const lambdaHandler = async (
         }
 
         // POST /practices/{id}
-        if (resourcePath === '/groups/{id}') {
+        if (resourcePath === '/practices/{id}') {
             // 異常系 #1
             if (!event.body) {
                 return {
@@ -271,40 +272,51 @@ export const lambdaHandler = async (
             logger.info('Create practice')
 
             // 稽古の追加
-            await createPractice(
-                groupId,
-                group.group_name,
-                requestBody.date,
-                requestBody.start_time,
-                requestBody.end_time,
-                requestBody.place
-            )
+            try {
+                await createPractice(
+                    groupId,
+                    group.group_name,
+                    requestBody.date,
+                    requestBody.start_time,
+                    requestBody.end_time,
+                    requestBody.place
+                )
 
-            // ログの書き込み
-            await writePracticesChangeLog(
-                groupId,
-                ADMIN_USER_NAME,
-                EventType.Add,
-                plainToClass(Practice, {
-                    group_id: groupId,
-                    group_name: group.group_name,
-                    date: requestBody.date,
-                    start_time: requestBody.start_time,
-                    end_time: requestBody.end_time,
-                    place: requestBody.place,
-                })
-            )
+                // ログの書き込み
+                await writePracticesChangeLog(
+                    groupId,
+                    ADMIN_USER_NAME,
+                    EventType.Add,
+                    plainToClass(Practice, {
+                        group_id: groupId,
+                        group_name: group.group_name,
+                        date: requestBody.date,
+                        start_time: requestBody.start_time,
+                        end_time: requestBody.end_time,
+                        place: requestBody.place,
+                    })
+                )
 
-            return {
-                statusCode: 200,
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    'group_id': groupId,
-                    'group_name': group.group_name,
-                    'place': requestBody.place,
-                    'date': requestBody.date,
-                    'time': `${requestBody.start_time}~${requestBody.end_time}`,
-                }),
+                return {
+                    statusCode: 200,
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        'group_id': groupId,
+                        'group_name': group.group_name,
+                        'place': requestBody.place,
+                        'date': requestBody.date,
+                        'time': `${requestBody.start_time}~${requestBody.end_time}`,
+                    }),
+                }
+            } catch (e) {
+                const errorMessage = 'Unexpected error has occured.'
+                logger.error(errorMessage)
+                logger.error(e)
+                return {
+                    'statusCode': 500,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify(getErrorBody(500, errorMessage)),
+                }
             }
         }
     }
@@ -362,6 +374,7 @@ export const lambdaHandler = async (
             } catch (e) {
                 if (e instanceof ConditionalCheckFailedException) {
                     const errorMessage = `The group_id ${groupId} is not found.`
+                    logger.info(errorMessage)
                     return {
                         'statusCode': 400,
                         'headers': getHeaders(),
@@ -369,6 +382,8 @@ export const lambdaHandler = async (
                     }
                 } else {
                     const errorMessage = 'Unexpected error has occured.'
+                    logger.error(errorMessage)
+                    logger.error(e)
                     return {
                         'statusCode': 500,
                         'headers': getHeaders(),
@@ -396,18 +411,31 @@ export const lambdaHandler = async (
 
             const groupId = event.pathParameters.id
 
-            // 更新処理
+            // 削除処理
             try {
-                await deleteGroupOne(groupId)
-
-                return {
-                    'statusCode': 204,
-                    'headers': getHeaders(),
-                    'body': JSON.stringify({}),
+                const usersBelongingGroup = await getUsersByGroupID(groupId)
+                // 所属するメンバが0人のときのみ実施可能
+                if (usersBelongingGroup.length === 0) {
+                    // グループの削除
+                    await deleteGroupOne(groupId)
+                    return {
+                        'statusCode': 204,
+                        'headers': getHeaders(),
+                        'body': JSON.stringify({}),
+                    }
+                } else {
+                    const errorMessage = `The group ${groupId} has some menbers, so you cant delete this group.`
+                    logger.info(errorMessage)
+                    return {
+                        'statusCode': 400,
+                        'headers': getHeaders(),
+                        'body': JSON.stringify(getErrorBody(400, errorMessage)),
+                    }
                 }
             } catch (e) {
                 if (e instanceof ConditionalCheckFailedException) {
                     const errorMessage = `The group_id ${groupId} is not found.`
+                    logger.info(errorMessage)
                     return {
                         'statusCode': 400,
                         'headers': getHeaders(),
@@ -415,6 +443,8 @@ export const lambdaHandler = async (
                     }
                 } else {
                     const errorMessage = 'Unexpected error has occured.'
+                    logger.error(errorMessage)
+                    logger.error(e)
                     return {
                         'statusCode': 500,
                         'headers': getHeaders(),
@@ -506,6 +536,7 @@ export const lambdaHandler = async (
             } catch (e) {
                 if (e instanceof ConditionalCheckFailedException) {
                     const errorMessage = `The group_id ${groupId} is not found.`
+                    logger.info(errorMessage)
                     return {
                         'statusCode': 400,
                         'headers': getHeaders(),
@@ -514,6 +545,7 @@ export const lambdaHandler = async (
                 } else {
                     const errorMessage = 'Unexpected error has occured.'
                     logger.error(errorMessage)
+                    logger.error(e)
                     return {
                         'statusCode': 500,
                         'headers': getHeaders(),
