@@ -116,7 +116,7 @@ export const lambdaHandler = async (
             return {
                 'statusCode': 200,
                 'headers': getHeaders(),
-                'body': JSON.stringify(createGroupOne(requestBody.name)),
+                'body': JSON.stringify(await createGroupOne(requestBody.name)),
             }
         }
 
