@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { PracticeRequest } from '../common/type.js'
-import { createGroupOne, updateGroupOne } from './groups.js'
+import { createGroupOne, deleteGroupOne, updateGroupOne } from './groups.js'
 import {
     createPractice,
     getGroupByID,
@@ -381,6 +381,49 @@ export const lambdaHandler = async (
 
     // DELETEメソッド
     if (httpMethod === 'DELETE') {
+        // DELETE /groups/{group_id}
+        if (event.requestContext.resourcePath === '/groups/{id}') {
+            // 異常系 #1
+            if (!event.pathParameters || !event.pathParameters?.id) {
+                return {
+                    'statusCode': 400,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify(
+                        getErrorBody(400, "'groupId' is empty.")
+                    ),
+                }
+            }
+
+            const groupId = event.pathParameters.id
+
+            // 更新処理
+            try {
+                await deleteGroupOne(groupId)
+
+                return {
+                    'statusCode': 204,
+                    'headers': getHeaders(),
+                    'body': JSON.stringify({}),
+                }
+            } catch (e) {
+                if (e instanceof ConditionalCheckFailedException) {
+                    const errorMessage = `The group_id ${groupId} is not found.`
+                    return {
+                        'statusCode': 400,
+                        'headers': getHeaders(),
+                        'body': JSON.stringify(getErrorBody(400, errorMessage)),
+                    }
+                } else {
+                    const errorMessage = 'Unexpected error has occured.'
+                    return {
+                        'statusCode': 500,
+                        'headers': getHeaders(),
+                        'body': JSON.stringify(getErrorBody(500, errorMessage)),
+                    }
+                }
+            }
+        }
+
         // DELETE /practices/{group_id}
         if (event.requestContext.resourcePath === '/practices/{id}') {
             // 異常系 #1

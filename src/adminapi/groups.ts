@@ -1,4 +1,6 @@
 import {
+    DeleteItemCommand,
+    DeleteItemInput,
     DynamoDBClient,
     PutItemCommand,
     PutItemCommandInput,
@@ -70,5 +72,29 @@ export const updateGroupOne = async (groupId: string, groupName: string) => {
     }
 
     const command = new UpdateItemCommand(updateItemRequest)
+    await client.send(command)
+}
+
+/**
+ * グループを削除する関数
+ * @param groupId グループID
+ */
+export const deleteGroupOne = async (groupId: string) => {
+    const deleteItemRequest: DeleteItemInput = {
+        TableName: TABLE_CONSTANT.users_groups_table,
+        Key: marshall({
+            group_id: groupId,
+            user_id: groupId,
+        }),
+        ConditionExpression: '#t = :g',
+        ExpressionAttributeNames: {
+            '#t': 'type',
+        },
+        ExpressionAttributeValues: marshall({
+            ':g': EntityType.group,
+        }),
+    }
+
+    const command = new DeleteItemCommand(deleteItemRequest)
     await client.send(command)
 }
