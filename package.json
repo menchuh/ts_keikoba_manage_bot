@@ -8,6 +8,7 @@
         "cdk:diff": "cdk diff",
         "cdk:synth": "cdk synth",
         "cdk:destroy": "cdk destroy",
+        "gen apidoc": "sh doc/genapidoc.sh",
         "lint": "eslint src/**/*.ts",
         "test": "vitest"
     },

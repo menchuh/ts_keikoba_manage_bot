@@ -285,7 +285,7 @@ export class KeikoManagerBotStack extends Stack {
             'PUT',
             new aws_apigateway.LambdaIntegration(adminApiFuncResource)
         )
-        restApiAdminPracticesId.addMethod(
+        restApiAdminGroupsId.addMethod(
             'DELETE',
             new aws_apigateway.LambdaIntegration(adminApiFuncResource)
         )
@@ -295,6 +295,10 @@ export class KeikoManagerBotStack extends Stack {
         )
         restApiAdminPracticesId.addMethod(
             'POST',
+            new aws_apigateway.LambdaIntegration(adminApiFuncResource)
+        )
+        restApiAdminPracticesId.addMethod(
+            'DELETE',
             new aws_apigateway.LambdaIntegration(adminApiFuncResource)
         )
 
