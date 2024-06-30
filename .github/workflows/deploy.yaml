@@ -1,4 +1,4 @@
-name: Release
+name: deploy
 
 on:
     push:
@@ -20,7 +20,7 @@ env:
     REPOSITORY_NAME: ${{ secrets.REPOSITORY_NAME }}
 
 jobs:
-    build:
+    deploy:
         name: Build
         runs-on: ubuntu-latest
         permissions:
@@ -64,26 +64,6 @@ jobs:
                   provenance: false
                   platforms: linux/arm64
 
-            - name: Move cache
-              run: |
-                  rm -rf /tmp/.buildx-cache
-                  mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-    deploy:
-        name: Deploy
-        needs: build
-        runs-on: ubuntu-latest
-        permissions:
-            id-token: write
-            contents: read
-
-        steps:
-            - name: Configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                  role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ROLE_NAME }}
-                  aws-region: ${{ env.AWS_REGION }}
-
             - name: deploy lambda functions
               env:
                   ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -91,3 +71,8 @@ jobs:
                   aws lambda update-function-code --function-name ${{ env.ADMIN_LAMBDA_FUNCTION_NAME }} --image-uri $ECR_REGISTRY/${{ env.REPOSITORY_NAME }}:${{ github.sha }}
                   aws lambda update-function-code --function-name ${{ env.LINE_MANAGER_FUNCTION_NAME }} --image-uri $ECR_REGISTRY/${{ env.REPOSITORY_NAME }}:${{ github.sha }}
                   aws lambda update-function-code --function-name ${{ env.LINE_NOTIFICATION_FUNCTION_NAME }} --image-uri $ECR_REGISTRY/${{ env.REPOSITORY_NAME }}:${{ github.sha }}
+
+            - name: Move cache
+              run: |
+                  rm -rf /tmp/.buildx-cache
+                  mv /tmp/.buildx-cache-new /tmp/.buildx-cache

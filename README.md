@@ -26,7 +26,7 @@ The infrastructure is deployed using CDK (written in TypeScript) and the push to
 -   `yarn cdk:diff` show the differences on AWS resources because of stack changes
 -   `yarn cdk:synth` cdk synth command
 -   `yarn cdk:destory` cdk destory command
--   `yarn gen apidoc` generate api doc with shell script
+-   `yarn gen:apidoc` generate api doc with shell script
 -   `yarn lint` lint the TypeScript files
 -   `yarn test` run the unit tests for the TypeScript files(not yet)
 
