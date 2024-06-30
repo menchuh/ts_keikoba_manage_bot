@@ -21,7 +21,6 @@ env:
 
 jobs:
     deploy:
-        name: Build
         runs-on: ubuntu-latest
         permissions:
             id-token: write

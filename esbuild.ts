@@ -8,6 +8,7 @@ esbuild
         entryPoints,
         outdir: 'dist',
         minify: true,
+        bundle: true,
         platform: 'node',
         format: 'esm',
         target: ['es2020'],
