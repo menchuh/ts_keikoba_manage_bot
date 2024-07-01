@@ -4,6 +4,7 @@ import { createGroupOne, deleteGroupOne, updateGroupOne } from './groups.js'
 import {
     createPractice,
     getGroupByID,
+    getPracticesByGroupID,
     getUsersByGroupID,
     isSamePracticeItemExists,
     listGroups,
@@ -30,6 +31,9 @@ export const lambdaHandler = async (
     // request
     const httpMethod = event.httpMethod
     const resourcePath = event.requestContext.resourcePath
+
+    logger.info(`Request method: ${httpMethod}`)
+    logger.info(`Request path: ${resourcePath}`)
 
     // GET method
     if (httpMethod === 'GET') {
@@ -84,6 +88,48 @@ export const lambdaHandler = async (
                     id: response.group_id,
                     name: response.group_name,
                 }),
+            }
+        }
+
+        // GET /practices/{id}
+        if (resourcePath === '/practices/{id}') {
+            const groupId = event.pathParameters?.id
+            if (!groupId) {
+                return {
+                    statusCode: 400,
+                    headers: getHeaders(),
+                    body: JSON.stringify(
+                        getErrorBody(400, 'group_id is required')
+                    ),
+                }
+            }
+
+            let isFutureOnly = true
+            if (
+                event.queryStringParameters &&
+                event.queryStringParameters.isFutureOnly
+            ) {
+                isFutureOnly =
+                    event.queryStringParameters.isFutureOnly === 'true'
+                        ? true
+                        : false
+            }
+
+            const practices = await getPracticesByGroupID(groupId, isFutureOnly)
+            const body = practices.map((p) => {
+                return {
+                    place: p.place,
+                    date: p.date,
+                    start_time: p.start_time,
+                    end_time: p.end_time,
+                    group_name: p.group_name,
+                }
+            })
+
+            return {
+                statusCode: 200,
+                headers: getHeaders(),
+                body: JSON.stringify(body),
             }
         }
     }

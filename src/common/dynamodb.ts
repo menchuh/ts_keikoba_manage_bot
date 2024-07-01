@@ -15,7 +15,6 @@ import { EntityType, Group } from './users_groups.js'
 import { Practice } from './practices.js'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 import dayjs from 'dayjs'
-import { logger } from './logger.js'
 
 // AWSリソース
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })
@@ -196,23 +195,40 @@ export const isSamePracticeItemExists = async (
  * @returns Practice[] 稽古予定の配列
  */
 export const getPracticesByGroupID = async (
-    groupId: string
+    groupId: string,
+    isFutureOnly = true
 ): Promise<Practice[]> => {
-    // 今日の日付を取得
-    const today = dayjs().format(DATE_STRING_FORMAT)
-    // 稽古予定を取得
-    const queryItemRequest: QueryInput = {
-        TableName: TABLE_CONSTANT.practices_table,
-        KeyConditionExpression: 'group_id = :id',
-        FilterExpression: '#d >= :today',
-        ExpressionAttributeNames: {
-            '#d': 'date',
-        },
-        ExpressionAttributeValues: marshall({
-            ':id': groupId,
-            ':today': today,
-        }),
+    let queryItemRequest: QueryInput
+
+    // 未来の稽古予定のみ取得
+    if (isFutureOnly) {
+        // 今日の日付を取得
+        const today = dayjs().format(DATE_STRING_FORMAT)
+        // 稽古予定を取得
+        queryItemRequest = {
+            TableName: TABLE_CONSTANT.practices_table,
+            KeyConditionExpression: 'group_id = :id',
+            FilterExpression: '#d >= :today',
+            ExpressionAttributeNames: {
+                '#d': 'date',
+            },
+            ExpressionAttributeValues: marshall({
+                ':id': groupId,
+                ':today': today,
+            }),
+        }
+    } else {
+        // 過去の稽古予定も含めて取得
+        // 稽古予定を取得
+        queryItemRequest = {
+            TableName: TABLE_CONSTANT.practices_table,
+            KeyConditionExpression: 'group_id = :id',
+            ExpressionAttributeValues: marshall({
+                ':id': groupId,
+            }),
+        }
     }
+
     const command = new QueryCommand(queryItemRequest)
     const response = await client.send(command)
 
