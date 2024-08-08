@@ -318,51 +318,62 @@ export const lambdaHandler = async (
 
             // 稽古予定の通知
             if (method === UserMode.NotifyPractices) {
-                if (user?.groups.length === 0) {
-                    // 参加している座組がない場合
-                    // メッセージ送信
-                    const text = '参加している座組がありません'
-                    await client.replyMessage({
-                        replyToken: lineEvent.replyToken,
-                        messages: [{ type: 'text', text: text }],
-                    })
-                } else if (user?.groups.length === 1) {
-                    // 参加している座組が1つの場合
-                    const group = user.groups[0]
-                    // セッションの更新
-                    const session: UserSession = {
-                        mode: UserMode.NotifyPractices,
-                        phase: UserNotifyPracticesWithdrawGroupPhase.Confirm,
-                        data: {
-                            group_id: group.group_id,
-                            group_name: group.group_name,
+                // メッセージ送信
+                const text = 'ごめんなさい>_<\nこのモードはまだ使えません'
+                await client.replyMessage({
+                    replyToken: lineEvent.replyToken,
+                    messages: [
+                        {
+                            type: 'text',
+                            text: text,
                         },
-                    }
-                    await updateUserSession(session, userId)
-                    // メッセージ送信
-                    await client.replyMessage({
-                        replyToken: lineEvent.replyToken,
-                        messages: [createNotifyPracticesConfirmMessage(group)],
-                    })
-                } else {
-                    // 参加している座組が2つ以上の場合
-                    // セッションの更新
-                    const session: UserSession = {
-                        mode: UserMode.NotifyPractices,
-                        phase: UserNotifyPracticesWithdrawGroupPhase.AskGroup,
-                    }
-                    await updateUserSession(session, userId)
-                    // メッセージ送信
-                    await client.replyMessage({
-                        replyToken: lineEvent.replyToken,
-                        messages: [
-                            createNotifyPracticesAskGroupButtonMessage(
-                                user!.groups
-                            ),
-                        ],
-                    })
-                }
+                    ],
+                })
             }
+            // if (user?.groups.length === 0) {
+            //     // 参加している座組がない場合
+            //     // メッセージ送信
+            //     const text = '参加している座組がありません'
+            //     await client.replyMessage({
+            //         replyToken: lineEvent.replyToken,
+            //         messages: [{ type: 'text', text: text }],
+            //     })
+            // } else if (user?.groups.length === 1) {
+            //     // 参加している座組が1つの場合
+            //     const group = user.groups[0]
+            //     // セッションの更新
+            //     const session: UserSession = {
+            //         mode: UserMode.NotifyPractices,
+            //         phase: UserNotifyPracticesWithdrawGroupPhase.Confirm,
+            //         data: {
+            //             group_id: group.group_id,
+            //             group_name: group.group_name,
+            //         },
+            //     }
+            //     await updateUserSession(session, userId)
+            //     // メッセージ送信
+            //     await client.replyMessage({
+            //         replyToken: lineEvent.replyToken,
+            //         messages: [createNotifyPracticesConfirmMessage(group)],
+            //     })
+            // } else {
+            //     // 参加している座組が2つ以上の場合
+            //     // セッションの更新
+            //     const session: UserSession = {
+            //         mode: UserMode.NotifyPractices,
+            //         phase: UserNotifyPracticesWithdrawGroupPhase.AskGroup,
+            //     }
+            //     await updateUserSession(session, userId)
+            //     // メッセージ送信
+            //     await client.replyMessage({
+            //         replyToken: lineEvent.replyToken,
+            //         messages: [
+            //             createNotifyPracticesAskGroupButtonMessage(
+            //                 user!.groups
+            //             ),
+            //         ],
+            //     })
+            // }
 
             // 稽古予定の追加
             if (method === UserMode.AddPractice) {

@@ -1,6 +1,7 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { ErrorObject, HeaderObject } from './type.js'
 import dayjs from 'dayjs'
+import { ConfigurationSource } from 'aws-cdk-lib/aws-appconfig/index.js'
 
 const ssmClient = new SSMClient()
 
@@ -92,7 +93,7 @@ export const isBeforeToday = (date: string): boolean => {
  * @returns
  */
 export const isTimeABeforeTimeB = (timeA: string, timeB: string): boolean => {
-    const timeReExp = new RegExp(/(\d{2}):\d{2}/)
+    const timeReExp = new RegExp(/(\d{2}):(\d{2})/)
     const timeAMatches = timeReExp.exec(timeA)
     const timeBMatches = timeReExp.exec(timeB)
 
@@ -101,10 +102,10 @@ export const isTimeABeforeTimeB = (timeA: string, timeB: string): boolean => {
     }
 
     const timeADateTime = dayjs()
-        .set('hour', Number(timeAMatches[0]))
-        .set('minute', Number(timeAMatches[1]))
+        .set('hour', Number(timeAMatches[1]))
+        .set('minute', Number(timeAMatches[2]))
     const timeBDateTime = dayjs()
-        .set('hour', Number(timeBMatches[0]))
-        .set('minute', Number(timeBMatches[1]))
+        .set('hour', Number(timeBMatches[1]))
+        .set('minute', Number(timeBMatches[2]))
     return timeADateTime.isBefore(timeBDateTime)
 }

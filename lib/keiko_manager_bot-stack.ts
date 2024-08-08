@@ -157,7 +157,7 @@ export class KeikoManagerBotStack extends Stack {
                 year: '*',
                 month: '*',
                 day: '*',
-                hour: '12',
+                hour: '12', // UTC
                 minute: '0',
             }),
             targets: [

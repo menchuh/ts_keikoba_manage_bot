@@ -6,6 +6,7 @@
 dist
 node_modules
 img
+coverage
 
 # CDK asset staging directory
 .cdk.staging
