@@ -231,7 +231,7 @@ export const lambdaHandler = async (
 
             // 稽古場の有無チェック
             if (
-                communityCentersOfTheArea
+                !communityCentersOfTheArea
                     .map((c) => c.name)
                     .includes(requestBody.place)
             ) {
