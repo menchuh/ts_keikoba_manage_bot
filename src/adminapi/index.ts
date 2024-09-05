@@ -255,7 +255,10 @@ export const lambdaHandler = async (
                     statusCode: 400,
                     headers: getHeaders(),
                     body: JSON.stringify(
-                        getErrorBody(400, `Date value formt must be yyyy/MM/dd`)
+                        getErrorBody(
+                            400,
+                            `Date value format must be yyyy/MM/dd`
+                        )
                     ),
                 }
             }
