@@ -1,12 +1,11 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { ErrorObject, HeaderObject } from './type.js'
 import dayjs from 'dayjs'
-import { ConfigurationSource } from 'aws-cdk-lib/aws-appconfig/index.js'
 
 const ssmClient = new SSMClient()
 
 // 定数
-const MESSAGE_DATE_FORMAT = '%m/%d'
+const MESSAGE_DATE_FORMAT = 'MM/DD'
 const WEEKDAY_ARRAY = ['月', '火', '水', '木', '金', '土', '日']
 
 /**

@@ -9,7 +9,7 @@ import { CreatePracticeData } from './practices.js'
 import dayjs from 'dayjs'
 
 // 定数
-const LOG_TIMESTAMP_FORMAT = '%Y/%m/%d %H:%M:%S'
+const LOG_TIMESTAMP_FORMAT = 'YYYY/MM/DD hh:mm:ss.SSS'
 
 export enum EventType {
     Add = '追加', // eslint-disable-line no-unused-vars

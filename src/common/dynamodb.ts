@@ -20,7 +20,7 @@ import dayjs from 'dayjs'
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })
 
 // 定数
-const DATE_STRING_FORMAT = '%Y-%m-%d'
+const DATE_STRING_FORMAT = 'YYYY-MM-DD'
 export const TABLE_CONSTANT = {
     practices_table: 'keikoba_practices',
     users_groups_table: 'keikoba_users_groups',

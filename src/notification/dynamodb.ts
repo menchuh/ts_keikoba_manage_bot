@@ -10,7 +10,7 @@ import { plainToClass } from 'class-transformer'
 import { Practice } from '../common/practices.js'
 
 // 定数
-const DATE_STRING_FORMAT = '%Y-%m-%d'
+const DATE_STRING_FORMAT = 'YYYY-MM-DD'
 
 // AWSリソース
 const client = new DynamoDBClient({ region: 'ap-northeast-1' })
