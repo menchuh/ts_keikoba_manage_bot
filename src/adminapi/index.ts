@@ -3,6 +3,7 @@ import { PracticeRequest } from '../common/type.js'
 import { createGroupOne, deleteGroupOne, updateGroupOne } from './groups.js'
 import {
     createPractice,
+    deletePractice,
     getGroupByID,
     getPracticesByGroupID,
     getUsersByGroupID,
@@ -553,6 +554,7 @@ export const lambdaHandler = async (
             try {
                 if (await isSamePracticeItemExists(groupId, dateStartPlace)) {
                     // 稽古予定の削除
+                    await deletePractice(groupId, dateStartPlace)
                     // ログの書き込み
                     await writePracticesChangeLog(
                         groupId,

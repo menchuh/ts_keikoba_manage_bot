@@ -289,3 +289,25 @@ export const createPractice = async (
     const command = new PutItemCommand(putItemRequest)
     await client.send(command)
 }
+
+/**
+ * 稽古予定を作成する関数
+ * @param groupId グループID
+ * @param dateStartPlace 稽古日付#稽古開始時間#稽古場所
+ */
+export const deletePractice = async (
+    groupId: string,
+    dateStartPlace: string
+) => {
+    // 稽古予定を追加
+    const deleteItemRequest: DeleteItemInput = {
+        TableName: TABLE_CONSTANT.practices_table,
+        Key: marshall({
+            group_id: groupId,
+            date_start_place: dateStartPlace,
+        }),
+    }
+
+    const command = new DeleteItemCommand(deleteItemRequest)
+    await client.send(command)
+}
