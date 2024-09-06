@@ -9,7 +9,11 @@ import {
     isSamePracticeItemExists,
     listGroups,
 } from '../common/dynamodb.js'
-import { getErrorBody, getHeaders } from '../common/utils.js'
+import {
+    getErrorBody,
+    getHeaders,
+    isTimeABeforeTimeB,
+} from '../common/utils.js'
 import { CreateGroupRequest, CreatePracticeRequest } from './type.js'
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb'
 import { EventType, logger, writePracticesChangeLog } from '../common/logger.js'
@@ -285,9 +289,7 @@ export const lambdaHandler = async (
 
             // 開始時刻 < 終了時刻のチェック
             if (
-                !dayjs(requestBody.start_time).isBefore(
-                    dayjs(requestBody.end_time)
-                )
+                isTimeABeforeTimeB(requestBody.end_time, requestBody.start_time)
             ) {
                 return {
                     statusCode: 400,
