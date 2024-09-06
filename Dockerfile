@@ -6,6 +6,7 @@ FROM public.ecr.aws/lambda/nodejs:20 as builder
 WORKDIR /usr/app
 
 COPY package.json  ./
+COPY .yarnrc  ./
 COPY yarn.lock  ./
 COPY esbuild.ts  ./
 COPY src/ ./src/

@@ -104,10 +104,8 @@ export const lambdaHandler = async (
     logger.info(event)
     logger.info(event.body)
     logger.info(requestBody)
-    const lineEvent = requestBody.events[0]
-    logger.info(requestBody)
-    logger.info(lineEvent)
     logger.info('-----------------')
+    const lineEvent = requestBody.events[0]
     const userId = lineEvent.source.userId!
     const user = await getUserByID(userId)
 
