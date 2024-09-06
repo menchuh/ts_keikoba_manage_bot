@@ -101,6 +101,8 @@ export const lambdaHandler = async (
     // イベントとユーザの取得
     const requestBody: WebhookRequestBody = JSON.parse(event.body)
     const lineEvent = requestBody.events[0]
+    logger.info(requestBody)
+    logger.info(lineEvent)
     const userId = lineEvent.source.userId!
     const user = await getUserByID(userId)
 
