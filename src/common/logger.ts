@@ -40,6 +40,8 @@ const isFileExistsInBucket = async (
     })
     const data = await s3Client.send(command)
 
+    logger.info(data.Body)
+
     // 有無チェック
     return !!data.Body
 }
@@ -62,7 +64,10 @@ export const writePracticesChangeLog = async (
     // 引数の設定
     const bucketName = await getSsmParameter('KeikobaLineBotAdmin-BUCKET_NAME')
     const fileKey = `${groupId}.log`
-    let contetBody = ``
+    let contetBody = ''
+
+    logger.info(bucketName)
+    logger.info(fileKey)
 
     // コマンドの作成
     const getCommand = new GetObjectCommand({
