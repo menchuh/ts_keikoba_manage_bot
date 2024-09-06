@@ -40,8 +40,6 @@ const isFileExistsInBucket = async (
     })
     const data = await s3Client.send(command)
 
-    logger.info(data.Body)
-
     // 有無チェック
     return !!data.Body
 }
@@ -66,31 +64,25 @@ export const writePracticesChangeLog = async (
     const fileKey = `${groupId}.log`
     let contetBody = ''
 
-    logger.info(bucketName)
-    logger.info(fileKey)
-
     // コマンドの作成
     const getCommand = new GetObjectCommand({
         Bucket: bucketName,
         Key: fileKey,
     })
+
+    // ログファイル存在
+    if (await isFileExistsInBucket(bucketName, fileKey)) {
+        const data = await s3Client.send(getCommand)
+        contetBody =
+            ((await data.Body?.transformToString()) || '') + `${logText}`
+    } else {
+        contetBody = `${logText}`
+    }
+
     const putCommand = new PutObjectCommand({
         Bucket: bucketName,
         Key: fileKey,
         Body: contetBody,
     })
-
-    // ログファイル存在
-    if (await isFileExistsInBucket(bucketName, fileKey)) {
-        const data = await s3Client.send(getCommand)
-        if (data.Body?.transformToString()) {
-            contetBody = await data.Body?.transformToString()
-        }
-
-        contetBody += contetBody + `\n${logText}`
-        await s3Client.send(putCommand)
-    } else {
-        contetBody = `${logText}`
-        await s3Client.send(putCommand)
-    }
+    await s3Client.send(putCommand)
 }

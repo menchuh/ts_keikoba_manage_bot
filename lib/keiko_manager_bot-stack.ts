@@ -209,7 +209,7 @@ export class KeikoManagerBotStack extends Stack {
         const operateS3PolicyStatement = new PolicyStatement({
             actions: ['s3:GetObject', 's3:PutObject'],
             effect: Effect.ALLOW,
-            resources: ['arn:aws:s3:::isshou-keikoba-bot-logs'],
+            resources: ['arn:aws:s3:::isshou-keikoba-bot-logs/*'],
         })
 
         // ECR
