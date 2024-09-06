@@ -234,6 +234,8 @@ export const getPracticesByGroupID = async (
 
     if (response.Items && response.Items.length > 0) {
         return response.Items.map((item) => {
+            return unmarshall(item)
+        }).map((item) => {
             return plainToClass(Practice, {
                 group_id: item.group_id,
                 date_start_place: item.date_start_place,
