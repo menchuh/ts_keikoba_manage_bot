@@ -100,6 +100,7 @@ export const lambdaHandler = async (
 
     // イベントとユーザの取得
     const requestBody: WebhookRequestBody = JSON.parse(event.body)
+    logger.info(requestBody)
     const lineEvent = requestBody.events[0]
     logger.info(requestBody)
     logger.info(lineEvent)
