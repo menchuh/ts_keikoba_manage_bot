@@ -20,6 +20,7 @@ import {
     UserNotifyPracticesWithdrawGroupPhase,
 } from '../common/users_groups.js'
 import {
+    createPractice,
     deleteRelationItem,
     getGroupByID,
     getPracticesByGroupID,
@@ -804,6 +805,14 @@ export const lambdaHandler = async (
                         const groupId = user.session.data?.group_id
                         const practiceInfo = `[座組]\n${data.group_name}\n[場所]\n${data.place}\n[日付]\n${data.date}\n[時間]\n${data.start_time}~${data.end_time}`
                         // データの格納
+                        await createPractice(
+                            groupId!,
+                            data.group_name!,
+                            data.date!,
+                            data.start_time!,
+                            endTime!,
+                            data.place!
+                        )
                         // セッション情報のクリア
                         await updateUserSession({}, userId)
                         // メッセージ送信
