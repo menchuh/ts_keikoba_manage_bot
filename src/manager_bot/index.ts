@@ -164,7 +164,6 @@ export const lambdaHandler = async (
     //============================================
     if (lineEvent.type === 'message' && lineEvent.message.type === 'text') {
         logger.info('Text Message Event')
-        logger.info(user)
         // 座組に参加
         if (user?.session && user.session.mode === UserMode.JoinGroup) {
             let text = ''

@@ -161,7 +161,7 @@ export const updateUserSession = async (
             '#s': 'session',
         },
         ExpressionAttributeValues: marshall({
-            ':s': marshall(session),
+            ':s': session,
         }),
     }
     const command = new UpdateItemCommand(updateItemRequest)
