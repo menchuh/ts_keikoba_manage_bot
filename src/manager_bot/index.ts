@@ -297,7 +297,7 @@ export const lambdaHandler = async (
                     logger.info(groupIds)
                     // 稽古予定の取得
                     let practiceItems: Practice[][] = []
-                    groupIds?.forEach(async (groupId) => {
+                    groupIds?.map(async (groupId) => {
                         practiceItems.push(await getPracticesByGroupID(groupId))
                     })
                     const practices = practiceItems.filter(
