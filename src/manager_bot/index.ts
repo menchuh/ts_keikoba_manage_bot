@@ -207,6 +207,7 @@ export const lambdaHandler = async (
             })
             // 座組ID入力以外のテキストメッセージ
         } else {
+            logger.info('座組ID入力以外のテキストメッセージ')
             // 座組に参加していないユーザー
             if (user?.groups.length === 0) {
                 // メッセージ送信
