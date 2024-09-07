@@ -109,7 +109,7 @@ export const createAddPracticeAskPlaceMessage = async (
                 {
                     type: 'postback',
                     label: '選ぶ',
-                    displayText: '選ぶ',
+                    displayText: p.name,
                     data: `place=${p.name}`,
                 },
             ],
