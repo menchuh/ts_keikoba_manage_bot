@@ -760,9 +760,10 @@ export const lambdaHandler = async (
                             mode: UserMode.AddPractice,
                             phase: UserAddPracticePhase.AskEnd,
                             data: {
+                                date: user.session.data?.date,
                                 group_id: user.session.data?.group_id,
                                 group_name: user.session.data?.group_name,
-                                place: user.session.data?.date,
+                                place: user.session.data?.place,
                                 start_time: startTime,
                             },
                         }
