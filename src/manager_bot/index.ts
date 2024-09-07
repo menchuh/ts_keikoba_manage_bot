@@ -782,7 +782,7 @@ export const lambdaHandler = async (
                     const params = lineEvent.postback.params as DateTimePostback
                     const endTime = params.time!
                     if (
-                        isTimeABeforeTimeB(
+                        !isTimeABeforeTimeB(
                             user.session.data?.start_time!,
                             endTime
                         )

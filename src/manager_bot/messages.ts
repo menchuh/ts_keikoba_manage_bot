@@ -208,6 +208,7 @@ export const createAddPracticeAskTimeMessage = (
                     label: '日付を指定',
                     data: '日付を指定',
                     mode: 'time',
+                    initial: '13:00',
                 },
             ],
         },
