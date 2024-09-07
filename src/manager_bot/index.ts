@@ -164,6 +164,7 @@ export const lambdaHandler = async (
     //============================================
     if (lineEvent.type === 'message' && lineEvent.message.type === 'text') {
         logger.info('Text Message Event')
+        logger.info(user)
         // 座組に参加
         if (user?.session && user.session.mode === UserMode.JoinGroup) {
             let text = ''
@@ -421,11 +422,14 @@ export const lambdaHandler = async (
                     for (let i = 0; i < carouselMessageCount; i++) {
                         if (i === 0) {
                             carouselMessages.push(
-                                createAddPracticeAskPlaceMessage(places, i)
+                                await createAddPracticeAskPlaceMessage(
+                                    places,
+                                    i
+                                )
                             )
                         } else {
                             carouselMessages.push(
-                                createAddPracticeAskPlaceMessage(
+                                await createAddPracticeAskPlaceMessage(
                                     places,
                                     CAROUSEL_COLUMN_MAX * i - 1
                                 )
@@ -650,7 +654,7 @@ export const lambdaHandler = async (
                         await client.pushMessage({
                             to: userId,
                             messages: [
-                                createAddPracticeAskPlaceMessage(
+                                await createAddPracticeAskPlaceMessage(
                                     places,
                                     carouselMessageCount * i
                                 ),

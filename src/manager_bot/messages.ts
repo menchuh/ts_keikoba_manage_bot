@@ -44,13 +44,13 @@ export const createNotifyPracticesConfirmMessage = (
                 {
                     type: 'postback',
                     label: '通知する',
-                    text: '通知する',
+                    displayText: '通知する',
                     data: `action=${ConfirmTemplateAction.approve}`,
                 },
                 {
                     type: 'postback',
                     label: 'やめておく',
-                    text: 'やめておく',
+                    displayText: 'やめておく',
                     data: `action=${ConfirmTemplateAction.cancel}`,
                 },
             ],
@@ -93,12 +93,12 @@ export const createNotifyPracticesAskGroupButtonMessage = (
  * @param start 開始位置
  * @returns TemplateMessage
  */
-export const createAddPracticeAskPlaceMessage = (
+export const createAddPracticeAskPlaceMessage = async (
     places: CommunityCenter[],
     start: number
-): TemplateMessage => {
+): Promise<TemplateMessage> => {
     // パラメータ取得
-    const domain = getSsmParameter('KeikobaLineBot-CLOUD_FRONT_DOMAIN')
+    const domain = await getSsmParameter('KeikobaLineBot-CLOUD_FRONT_DOMAIN')
     // カラムの生成
     let columns: CarouselColumn[] = []
     places.forEach((p) => {
@@ -108,7 +108,6 @@ export const createAddPracticeAskPlaceMessage = (
             actions: [
                 {
                     type: 'postback',
-                    text: '選ぶ',
                     displayText: '選ぶ',
                     data: `place=${p.name}`,
                 },
@@ -261,13 +260,13 @@ export const createWithdrawGroupConfirmMessage = (
                 {
                     type: 'postback',
                     label: '抜ける',
-                    text: '抜ける',
+                    displayText: '抜ける',
                     data: `action=${ConfirmTemplateAction.approve}`,
                 },
                 {
                     type: 'postback',
                     label: 'やめておく',
-                    text: 'やめておく',
+                    displayText: 'やめておく',
                     data: `action=${ConfirmTemplateAction.cancel}`,
                 },
             ],
