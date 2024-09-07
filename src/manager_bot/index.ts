@@ -299,6 +299,7 @@ export const lambdaHandler = async (
                     groupIds?.forEach(async (groupId) => {
                         practices.push(await getPracticesByGroupID(groupId))
                     })
+                    logger.info(practices)
                     practices = practices.filter((p) => p.length !== 0)
 
                     if (practices.length === 0) {
@@ -528,7 +529,6 @@ export const lambdaHandler = async (
                     const group = user.groups.find(
                         (g) => g.group_id === groupId
                     )
-                    logger.info(group)
                     // セッションの更新
                     const session: UserSession = {
                         mode: UserMode.NotifyPractices,
