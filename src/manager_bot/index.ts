@@ -283,6 +283,7 @@ export const lambdaHandler = async (
 
             // 稽古予定の確認
             if (method === UserMode.ListPractices) {
+                logger.info(user?.groups)
                 if (user?.groups.length === 0) {
                     // 参加している座組がない場合
                     // メッセージ送信
@@ -294,14 +295,13 @@ export const lambdaHandler = async (
                 } else {
                     // 座組に参加している場合
                     const groupIds = user?.groups.map((g) => g.group_id)
+                    logger.info(groupIds)
                     // 稽古予定の取得
                     let practices: Practice[][] = []
                     groupIds?.forEach(async (groupId) => {
                         practices.push(await getPracticesByGroupID(groupId))
                     })
-                    logger.info(practices)
                     practices = practices.filter((p) => p.length !== 0)
-                    logger.info(practices)
 
                     if (practices.length === 0) {
                         // 予定されている稽古がない場合
