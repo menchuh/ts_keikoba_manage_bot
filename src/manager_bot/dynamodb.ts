@@ -158,7 +158,7 @@ export const updateUserSession = async (
         }),
         UpdateExpression: 'SET #s = :s',
         ExpressionAttributeNames: {
-            '#S': 'session',
+            '#s': 'session',
         },
         ExpressionAttributeValues: marshall({
             ':s': marshall(session),
