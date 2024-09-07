@@ -298,14 +298,12 @@ export const lambdaHandler = async (
                     // 稽古予定の取得
                     let practiceItems: Practice[][] = []
                     groupIds?.forEach(async (groupId) => {
-                        logger.info('getPracticesByGroupID')
-                        logger.info(await getPracticesByGroupID(groupId))
                         practiceItems.push(await getPracticesByGroupID(groupId))
                     })
-                    logger.info(practiceItems)
                     const practices = practiceItems.filter(
                         (p) => p.length !== 0
                     )
+                    logger.info(practices[0])
 
                     if (practices.length === 0) {
                         // 予定されている稽古がない場合

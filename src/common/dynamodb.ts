@@ -199,6 +199,7 @@ export const getPracticesByGroupID = async (
     isFutureOnly = true
 ): Promise<Practice[]> => {
     let queryItemRequest: QueryInput
+    console.log(groupId)
 
     // 未来の稽古予定のみ取得
     if (isFutureOnly) {
@@ -231,6 +232,8 @@ export const getPracticesByGroupID = async (
 
     const command = new QueryCommand(queryItemRequest)
     const response = await client.send(command)
+
+    console.log(response)
 
     if (response.Items && response.Items.length > 0) {
         return response.Items.map((item) => {
