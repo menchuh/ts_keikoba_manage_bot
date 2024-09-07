@@ -32,7 +32,6 @@ export const getUserByID = async (userId: string): Promise<User | null> => {
         Key: marshall({
             user_id: userId,
             group_id: userId,
-            type: EntityType.user,
         }),
     }
     const command = new GetItemCommand(getItemRequest)
