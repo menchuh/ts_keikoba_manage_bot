@@ -301,6 +301,7 @@ export const lambdaHandler = async (
                     })
                     logger.info(practices)
                     practices = practices.filter((p) => p.length !== 0)
+                    logger.info(practices)
 
                     if (practices.length === 0) {
                         // 予定されている稽古がない場合
