@@ -295,11 +295,11 @@ export const lambdaHandler = async (
                     // 座組に参加している場合
                     const groupIds = user?.groups.map((g) => g.group_id)
                     logger.info(groupIds)
-                    // 稽古予定の取得
                     let practiceItems: Practice[][] = []
-                    groupIds?.map(async (groupId) => {
+                    // 稽古予定の取得
+                    for (let groupId of groupIds!) {
                         practiceItems.push(await getPracticesByGroupID(groupId))
-                    })
+                    }
                     const practices = practiceItems.filter(
                         (p) => p.length !== 0
                     )
