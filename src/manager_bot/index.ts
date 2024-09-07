@@ -669,6 +669,9 @@ export const lambdaHandler = async (
                     const group = await getGroupByID(
                         user.session.data?.group_id!
                     )
+                    logger.info(lineEvent.postback.data)
+                    logger.info(place)
+                    logger.info(group)
                     // 施設情報を取得
                     const communityCenter = getCommunityCenterByAreaAndName(
                         group?.area!,
