@@ -43,7 +43,7 @@ export const lambdaHandler = async (
     }
 
     // 座組ごとに翌日の稽古予定を取得
-    groups.forEach(async (g) => {
+    for (let g of groups) {
         const tomorrowPractices = await getTomorrowPractices(g.group_id)
         if (tomorrowPractices.length !== 0) {
             data[g.group_id] = {
@@ -52,7 +52,7 @@ export const lambdaHandler = async (
                 users: [],
             }
         }
-    })
+    }
 
     // 翌日の稽古予定のある座組が0件の場合
     if (Object.keys(data).length === 0) {
@@ -68,14 +68,14 @@ export const lambdaHandler = async (
 
     // グループごとにメンバを取得
     // 所属するメンバーのいないグループを送信対象から削除
-    Object.keys(data).forEach(async (groupId) => {
+    for (let groupId of Object.keys(data)) {
         const userIds = await getUsersByGroupID(groupId)
         if (userIds.length > 0) {
             data[groupId]['users'] = userIds
         } else {
             delete data[groupId]
         }
-    })
+    }
 
     // 明日の稽古予定があり、かつメンバーの所属するグループが0件の場合
     if (Object.keys(data).length === 0) {

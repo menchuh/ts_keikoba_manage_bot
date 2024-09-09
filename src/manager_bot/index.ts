@@ -295,17 +295,18 @@ export const lambdaHandler = async (
                     // 座組に参加している場合
                     const groupIds = user?.groups.map((g) => g.group_id)
                     logger.info(groupIds)
-                    let practiceItems: Practice[][] = []
+                    let practiceGroupItems: Practice[][] = []
                     // 稽古予定の取得
                     for (let groupId of groupIds!) {
-                        practiceItems.push(await getPracticesByGroupID(groupId))
+                        practiceGroupItems.push(
+                            await getPracticesByGroupID(groupId)
+                        )
                     }
-                    const practices = practiceItems.filter(
+                    const practiceGroups = practiceGroupItems.filter(
                         (p) => p.length !== 0
                     )
-                    logger.info(practices[0])
 
-                    if (practices.length === 0) {
+                    if (practiceGroups.length === 0) {
                         // 予定されている稽古がない場合
                         // メッセージ送信
                         const text = '予定されている稽古はありません'
@@ -316,10 +317,10 @@ export const lambdaHandler = async (
                     } else {
                         // 予定されている稽古がある場合
                         let practices_text = ''
-                        practices.forEach((x, i, self) => {
+                        practiceGroups.forEach((x, i, self) => {
                             practices_text += `【${x[0].group_name}】\n`
                             x.forEach((y) => {
-                                practices_text += `${y}\n`
+                                practices_text += `${y.date} ${y.start_time}〜${y.end_time}@${y.place}\n`
                             })
                             if (i + 1 < self.length) {
                                 practices_text += '\n'
@@ -517,6 +518,7 @@ export const lambdaHandler = async (
             //============================================
         } else {
             // 稽古予定の通知
+            /*
             if (user?.session?.mode === UserMode.NotifyPractices) {
                 logger.info(UserMode.NotifyPractices)
                 logger.info(user.session.phase)
@@ -617,6 +619,7 @@ export const lambdaHandler = async (
                     }
                 }
             }
+            */
 
             // 稽古予定の追加
             if (user?.session?.mode === UserMode.AddPractice) {
