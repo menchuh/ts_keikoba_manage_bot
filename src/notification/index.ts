@@ -111,8 +111,8 @@ export const lambdaHandler = async (
             })
         belongingAndHavePracticesGroupIDs.forEach((groupId) => {
             pushNotificationSummary[user][groupId] = {
-                group_name: data.group_id.groupName,
-                practices: data.group_id.practices,
+                group_name: data[groupId].groupName,
+                practices: data[groupId].practices,
             }
         })
     })
