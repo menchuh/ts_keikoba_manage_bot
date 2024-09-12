@@ -118,7 +118,7 @@ export const lambdaHandler = async (
     })
 
     // メッセージ送信
-    Object.keys(pushNotificationSummary).forEach((userId) => {
+    for (let userId of Object.keys(pushNotificationSummary)) {
         let text: string
 
         const summaryOfUser = pushNotificationSummary[userId]
@@ -127,7 +127,7 @@ export const lambdaHandler = async (
         // メッセージ生成
         text =
             '明日は、以下の稽古が予定されています。\n頑張っていきましょう!\n\n'
-        groupIds.forEach((groupId) => {
+        for (let groupId of groupIds) {
             text += `【${summaryOfUser[groupId].group_name}】\n`
             summaryOfUser[groupId].practices.forEach((practice) => {
                 text += `${getMessageDateFormat(practice['date'])} ${practice.start_time}〜${practice.end_time}@${practice.place}\n`
@@ -140,7 +140,7 @@ export const lambdaHandler = async (
 
                 // メッセージ送信
                 logger.info(`Send button template messages to ${userId}`)
-                lineApiClient.pushMessage({
+                await lineApiClient.pushMessage({
                     to: userId,
                     messages: [
                         {
@@ -157,7 +157,7 @@ export const lambdaHandler = async (
             } else {
                 // メッセージ送信
                 logger.info(`Send text messages to ${userId}`)
-                lineApiClient.pushMessage({
+                await lineApiClient.pushMessage({
                     to: userId,
                     messages: [
                         {
@@ -167,8 +167,8 @@ export const lambdaHandler = async (
                     ],
                 })
             }
-        })
-    })
+        }
+    }
 
     // 送信後処理
     logger.info('Push notifications were successfully send.')
