@@ -130,7 +130,7 @@ export const lambdaHandler = async (
         for (let groupId of groupIds) {
             text += `【${summaryOfUser[groupId].group_name}】\n`
             summaryOfUser[groupId].practices.forEach((practice) => {
-                text += `${getMessageDateFormat(practice['date'])} ${practice.start_time}〜${practice.end_time}@${practice.place}\n`
+                text += `${getMessageDateFormat(practice.date)} ${practice.start_time}〜${practice.end_time}@${practice.place}\n`
             })
 
             if (isPracticeContainsGeometry(summaryOfUser[groupId].practices)) {

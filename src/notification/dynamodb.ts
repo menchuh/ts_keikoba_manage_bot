@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import dayjs from 'dayjs'
 import { TABLE_CONSTANT } from '../common/dynamodb.js'
-import { marshall } from '@aws-sdk/util-dynamodb'
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 import { plainToClass } from 'class-transformer'
 import { Practice } from '../common/practices.js'
 
@@ -46,7 +46,7 @@ export const getTomorrowPractices = async (
     const response = await client.send(command)
 
     if (response.Items) {
-        return response.Items.map((item) => {
+        return response.Items.map((item) => unmarshall(item)).map((item) => {
             return plainToClass(Practice, {
                 group_id: item.group_id,
                 date_start_place: item.date_start_place,
