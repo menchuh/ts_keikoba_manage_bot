@@ -16,7 +16,7 @@ export const lambdaHandler = async (
     // データを格納するオブジェクトの生成
     const data: {
         [key: string]: {
-            groupName: string
+            group_name: string
             practices: Practice[]
             users: string[]
         }
@@ -47,7 +47,7 @@ export const lambdaHandler = async (
         const tomorrowPractices = await getTomorrowPractices(g.group_id)
         if (tomorrowPractices.length !== 0) {
             data[g.group_id] = {
-                groupName: g.group_name,
+                group_name: g.group_name,
                 practices: tomorrowPractices,
                 users: [],
             }
@@ -111,7 +111,7 @@ export const lambdaHandler = async (
             })
         belongingAndHavePracticesGroupIDs.forEach((groupId) => {
             pushNotificationSummary[user][groupId] = {
-                group_name: data[groupId].groupName,
+                group_name: data[groupId].group_name,
                 practices: data[groupId].practices,
             }
         })
