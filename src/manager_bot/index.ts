@@ -320,7 +320,7 @@ export const lambdaHandler = async (
                         practiceGroups.forEach((x, i, self) => {
                             practices_text += `【${x[0].group_name}】\n`
                             x.forEach((y) => {
-                                practices_text += `${y.date} ${y.start_time}〜${y.end_time}@${y.place}\n`
+                                practices_text += `${getMessageDateFormat(y.date)} ${y.start_time}〜${y.end_time}@${y.place}\n`
                             })
                             if (i + 1 < self.length) {
                                 practices_text += '\n'
